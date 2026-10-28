@@ -1,24 +1,15 @@
-const express = require('express');
-const app = express();
-const PORT = process.env.PORT || 5000;
+/**
+ * index.js – Minimal entrypoint wrapper.
+ *
+ * Responsibility: load env first, then start the HTTP server.
+ * All application logic lives in src/; this file stays deliberately thin
+ * so that src/app.js can be imported in tests without binding a port.
+ */
 
-app.use(express.json());
+// Load and validate environment variables before anything else.
+// This will throw (with a clear message) if required vars are missing.
+require('./src/config/env');
 
-app.get('/', (req, res) => {
-  res.json({
-    ok: true,
-    service: 'Backend API',
-    status: 'running'
-  });
-});
+const { startServer } = require('./src/server');
 
-app.get('/health', (req, res) => {
-  res.json({
-    ok: true,
-    timestamp: new Date().toISOString()
-  });
-});
-
-app.listen(PORT, () => {
-  console.log(`Express Backend running on http://localhost:${PORT}`);
-});
+startServer();
