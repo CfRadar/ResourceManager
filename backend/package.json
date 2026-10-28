@@ -8,7 +8,11 @@
     "start": "node index.js",
     "dev": "nodemon index.js",
     "test": "jest --forceExit",
-    "test:watch": "jest --watch --forceExit"
+    "test:watch": "jest --watch --forceExit",
+    "migrate:latest": "knex migrate:latest --knexfile knexfile.js",
+    "migrate:rollback": "knex migrate:rollback --knexfile knexfile.js",
+    "migrate:make": "knex migrate:make --knexfile knexfile.js",
+    "seed:run": "knex seed:run --knexfile knexfile.js"
   },
   "keywords": [],
   "author": "",

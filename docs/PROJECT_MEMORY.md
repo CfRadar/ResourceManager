@@ -45,7 +45,7 @@
 | **Backend API** | In progress | Step 00 complete: full modular `src/` architecture, all middleware, 24 module stubs, 7 service stubs, 12 passing smoke tests. Endpoints pending (Steps 02–10). |
 | **Frontend** | In progress | React + Vite + TypeScript initialized with basic App component on port 5173 |
 | **AI Service** | In progress | FastAPI initialized with `/` and `/ai/health` on port 8000; matching engine pending |
-| **Database** | Configured | Knex/pg pool configured in `backend/src/config/db.js`; no migrations yet (Step 01). |
+| **Database** | Migrations ready | 7 Knex migration files (001–007) cover all spec entities; BaseRepository base class done; seed script ready. Run `npm run migrate:latest` against a PostgreSQL DB to apply. |
 | **Orchestration** | Working | Root Makefile with `make install`, `make backend`, `make frontend`, `make agent`, `make clear` |
 | **Tests** | In progress | 12 smoke tests passing (`backend/tests/app.smoke.test.js`); integration tests pending |
 
@@ -84,6 +84,27 @@
 
 ## 6. Change Log (newest first)
 
+### CHG-006 | 2026-10-28 | Step 01 — Database Models, Schema & Migrations
+- **Requested by:** User — “do task 1” (BKL-006).
+- **Skills used:** `project-memory-workflow`
+- **What changed:**
+  - `backend/knexfile.js` — Knex config for dev/test/prod; reads env vars via dotenv.
+  - `backend/package.json` — Added `migrate:latest`, `migrate:rollback`, `migrate:make`, `seed:run` scripts.
+  - `backend/migrations/001_users_and_auth.js` — `users`, `otps`, `refresh_tokens`.
+  - `backend/migrations/002_institutions_and_facilities.js` — `institutions`, `institution_partners`, `institution_memberships`, `membership_requests`, `facilities`.
+  - `backend/migrations/003_resources_and_policies.js` — `resources`, `resource_photos`, `resource_policies` (versioned).
+  - `backend/migrations/004_access_requests_and_bookings.js` — `access_requests`, `bookings` + GIST exclusion constraint, `waitlist_entries`, `blackout_periods`, `availability_polls`.
+  - `backend/migrations/005_condition_reports_and_uploads.js` — `file_uploads` (metadata-only, soft-delete), `condition_reports`.
+  - `backend/migrations/006_docs_trainings_incidents_tokens_audit.js` — `document_templates`, `user_documents`, `trainings`, `user_trainings`, `incidents`, `incident_notes`, `token_ledger` (append-only), `audit_events` (SHA-256 hash chain).
+  - `backend/migrations/007_service_and_need_requests.js` — `service_requests`, `service_request_quotes`, `need_requests`, `referrals`, `notifications`; adds deferred FK incidents→service_requests.
+  - `backend/seeds/001_demo_data.js` — Idempotent seed: 5 demo users, 2 institutions, 2 facilities, 3 resources, 3 policies.
+  - `backend/src/db/BaseRepository.js` — Base class with `findById`, `findOne`, `findAll`, `paginate`, `insert`, `update`, `softRemove`, `exists`; all accept optional trx.
+- **Why:** All entity tables required by the API spec must exist before Step 02 (Auth) can be implemented against them.
+- **Verification:** `npm test` → 12/12 passing. `node -e "require('./knexfile')"` → loads cleanly. Migrations require a live PostgreSQL DB to run (`npm run migrate:latest`).
+- **Commit:** Pending.
+- **Follow-ups:** Step 02 (Auth/JWT endpoints), run `npm run migrate:latest` against dev DB.
+
+
 ### CHG-005 | 2026-10-28 | Step 00 — NodeBackend Architecture, Project Structure & Setup
 - **Requested by:** User — implement Step 00 per `Research/NodeBackend/00_ARCHITECTURE_AND_SETUP.md` and `Research/01_BACKEND_API_SPEC.md`.
 - **Skills used:** `project-memory-workflow`
@@ -109,7 +130,7 @@
   - `backend/tests/app.smoke.test.js` — 12 smoke tests covering health, 404, malformed JSON, CORS, AppError helpers, validate middleware.
 - **Why:** Establish production-grade modular Express foundation before implementing business endpoints.
 - **Verification:** `npm test` → 12/12 passing. App imports cleanly in test mode. Env validation correctly rejects missing JWT secrets in production mode.
-- **Commit:** Pending.
+- **Commit:** `0cb6143` `feat(backend): implement Step 00 modular Express architecture, middleware, env/db config, and 12 smoke tests`
 - **Follow-ups:** Step 01 (Database Models & Migrations), Step 02 (Auth & RBAC endpoints).
 
 
@@ -196,9 +217,9 @@
 ---
 
 ## 8. Backlog / Future Implementation
-- [x] BKL-001 done in CHG-005 (Step 00 foundation: env, db config, middleware, module stubs, smoke tests)
-- [ ] BKL-006 (P0) Step 01: Database schema migrations (Knex) for all entities | Depends on: CHG-005 | Source: Research/NodeBackend/01_DATABASE_MODELS_AND_MIGRATIONS.md
-- [ ] BKL-007 (P0) Step 02: Auth/JWT endpoints — register, OTP, login, refresh, logout | Depends on: BKL-006 | Source: Research/NodeBackend/02_AUTH_RBAC_AND_SECURITY.md
+- [x] BKL-001 done in CHG-005 (Step 00 foundation)
+- [x] BKL-006 done in CHG-006 (Step 01: all 7 migration files, seed, BaseRepository, knexfile)
+- [ ] BKL-007 (P0) Step 02: Auth/JWT endpoints — register, OTP, login, refresh, logout | Depends on: CHG-006 | Source: Research/NodeBackend/02_AUTH_RBAC_AND_SECURITY.md
 - [ ] BKL-002 (P0) Implement Core Resource endpoints in Express backend | Depends on: BKL-007 | Source: Research/01_BACKEND_API_SPEC.md
 - [ ] BKL-003 (P0) Implement UviAge `/ai/parse-need` and `/ai/match-need` endpoints | Source: Research/01_BACKEND_API_SPEC.md
 - [ ] BKL-004 (P1) Implement React frontend navigation, layout, and resource catalog pages | Source: Research/02_FRONTEND_DESIGN_SPEC.md
