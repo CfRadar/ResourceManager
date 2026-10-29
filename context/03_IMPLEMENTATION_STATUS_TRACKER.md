@@ -1,6 +1,6 @@
 # Live Implementation Status Tracker
 
-> **LAST UPDATED:** 2026-10-29 (UviAge Step 03 Complete)
+> **LAST UPDATED:** 2026-10-29 (UviAge Steps 04, 05 & 06 Complete)
 > **RULE:** Any agent completing a blueprint step MUST update this tracker alongside `docs/PROJECT_MEMORY.md`.
 
 ---
@@ -10,7 +10,7 @@
 | Stack | Blueprint Location | Completed Steps | In Progress / Partial | Pending Steps | Active Tests | Stack Progress |
 | :--- | :--- | :---: | :---: | :---: | :---: | :---: |
 | **Node.js Express Backend** | `Research/NodeBackend/` | **11 / 11** | 0 | **0** | **272 passed** (18 suites) | **100%** |
-| **Python AI Service (UviAge)** | `Research/PythonBackend/` | **4 / 10** | **2** | **4** | **32 passed** | **~42%** |
+| **Python AI Service (UviAge)** | `Research/PythonBackend/` | **7 / 10** | **2** | **1** | **42 passed** | **~70%** |
 | **React Frontend** | `Research/Frontend/` | **0 / 11** | 0 | **11** | Build verified | **~5%** |
 
 ---
@@ -43,14 +43,14 @@
 | **01** | `01_PYDANTIC_SCHEMAS_AND_CONTRACTS.md` | **DONE** | `UviAge/schemas.py` (strict Pydantic V2 models) | `tests/test_schemas.py` (9 tests) |
 | **02** | `02_READONLY_REPOSITORY_LAYER.md` | **DONE** | `UviAge/repository.py` (psycopg v3, read-only mode, JSON fixtures) | `tests/test_repository.py` (6 tests) |
 | **03** | `03_NATURAL_LANGUAGE_NEED_PARSER.md` | **DONE** | `UviAge/parsing/need_parser.py`, `UviAge/main.py` (`POST /ai/parse-need`) | `tests/test_parser.py` (11 tests) |
-| **04** | `04_EMBEDDING_AND_VECTOR_INDEXING.md` | ⏳ **PENDING** | `UviAge/matching/embedder.py` (Stub; `is_ready() == False`) | Model loading pending |
-| **05** | `05_DETERMINISTIC_MATCHING_AND_RERANKING.md` | ⏳ **PENDING** | `UviAge/matching/rerank.py` (Stub) | Multi-factor reranking pending |
-| **06** | `06_KEYWORD_BM25_FALLBACK.md` | ⏳ **PENDING** | `UviAge/matching/fallback.py` (Stub) | BM25 index pending |
+| **04** | `04_EMBEDDING_AND_VECTOR_INDEXING.md` | **DONE** | `UviAge/matching/embedder.py` (`VectorIndexer`, `all-MiniLM-L6-v2`) | `tests/test_matching.py` (12 tests) |
+| **05** | `05_DETERMINISTIC_MATCHING_AND_RERANKING.md` | **DONE** | `UviAge/matching/rerank.py`, `main.py` (`POST /ai/match-need`) | `tests/test_matching.py` (12 tests) |
+| **06** | `06_DETERMINISTIC_KEYWORD_BM25_FALLBACK.md` | **DONE** | `UviAge/matching/fallback.py` (`BM25FallbackMatcher`, synonym dict) | `tests/test_matching.py` (12 tests) |
 | **07** | `07_INCIDENT_SUMMARY_DRAFTING.md` | ⏳ **PENDING** | `UviAge/incidents/summarizer.py` (Stub) | Incident summarization pending |
-| **08** | `08_EXPRESS_INTEGRATION_AND_CIRCUIT_BREAKER.md` | 🔄 **PARTIAL** | Express client `backend/src/services/aiClient.js` done; UviAge routes pending | Integration tests pending |
-| **09** | `09_TESTING_BENCHMARKS_AND_INDEX_REBUILD.md` | 🔄 **PARTIAL** | 32 unit tests pass; `/ai/reindex` background task pending | Benchmark tests pending |
+| **08** | `08_EXPRESS_INTEGRATION_AND_CIRCUIT_BREAKER.md` | 🔄 **PARTIAL** | Express client `backend/src/services/aiClient.js` done; `/ai/match-need` live | Integration verified |
+| **09** | `09_TESTING_BENCHMARKS_AND_INDEX_REBUILD.md` | 🔄 **PARTIAL** | 42 unit tests pass; `/ai/reindex` endpoint live | Benchmark load tests pending |
 
-**UviAge Test Total:** **32 passed** (`uv run pytest`).
+**UviAge Test Total:** **42 passed** (`uv run pytest`).
 
 ---
 

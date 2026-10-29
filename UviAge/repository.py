@@ -260,3 +260,18 @@ repository = ReadOnlyRepository()
 def ping() -> Union[str, bool]:
     """Module-level ping helper."""
     return repository.ping()
+
+
+def get_resources_by_ids(resource_ids: List[str]) -> List[Dict[str, Any]]:
+    """Module-level helper to fetch resources by IDs."""
+    return repository.get_resources_by_ids(resource_ids)
+
+
+def get_all_active_resources() -> List[Dict[str, Any]]:
+    """Module-level helper to fetch all active resources."""
+    return repository.get_all_active_resources()
+
+
+def get_incident_context(incident_id: str) -> Optional[Dict[str, Any]]:
+    """Module-level helper to fetch incident context."""
+    return repository.get_incident_context(incident_id)
