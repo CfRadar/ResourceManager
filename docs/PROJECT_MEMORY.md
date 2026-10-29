@@ -84,6 +84,21 @@
 
 ## 6. Change Log (newest first)
 
+### CHG-012 | 2026-10-29 | Created Agent Context Hub (`context/`)
+- **Requested by:** User — "I want to make a context folder, which will be used to give any agent the context of the project workflow, how to use skills, and everything about research and docs folder, it will include marking of which processes are done, and will be updated. it will be given to the agent to analyse on the first chat".
+- **Skills used:** `project-memory-workflow`
+- **What changed:**
+  - `context/README.md` — Master agent first-chat onboarding guide with orientation checklist, architecture topology, and port mapping.
+  - `context/01_PROJECT_WORKFLOW_AND_SKILLS.md` — Detailed operating guide for `project-memory-workflow` (the 7 steps, approval gates, verification requirements, commit conventions, and skill invocation).
+  - `context/02_ARCHITECTURE_AND_SPECS_MAP.md` — Full map and index of all architectural components, database rules, specifications in `Research/` (01 & 02 specs, NodeBackend 00–10, PythonBackend 00–09, Frontend 00–10), and `docs/PROJECT_MEMORY.md`.
+  - `context/03_IMPLEMENTATION_STATUS_TRACKER.md` — Real-time progress matrix tracking completion status across all 3 stacks (Node Backend: 7/11 done, 149 tests; Python AI Service: 3/10 done, 23 tests; Frontend: 0/11 done, build verified).
+  - `context/04_CONVENTIONS_AND_PITFALLS.md` — Critical operating constraints, known pitfalls (Express 5 req.query getter, Windows Makefile syntax, test module spying), and developer runbook commands.
+  - `README.md` — Added Agent Context Hub banner pointing agents to read `context/README.md` upon prompt start.
+- **Why:** Provide a single, unified, structured context directory enabling any incoming AI agent to immediately orient itself, adhere to workflow discipline, and navigate documentation without repeating past mistakes.
+- **Verification:** Verified all 5 context files exist, cross-links resolve cleanly, `npm test` passes (149/149), and `uv run pytest` passes (23/23).
+- **Commit:** Pending.
+- **Follow-ups:** Keep `context/03_IMPLEMENTATION_STATUS_TRACKER.md` updated as subsequent steps are completed.
+
 ### CHG-011 | 2026-10-29 | Step 06 — Access Requests, State Machine, Review Queue, Decisions & Appeals
 - **Requested by:** User — "06_ACCESS_REQUESTS_AND_STATE_MACHINE.md start with this process" (BKL-011).
 - **Skills used:** `project-memory-workflow`

@@ -4,6 +4,17 @@ A unified platform enabling cross-institutional resource sharing, lab equipment 
 
 ---
 
+## 🧠 Agent Context Hub (Start Here for AI Agents)
+
+If you are an AI agent starting work on this repository, **read [`context/README.md`](./context/README.md) first**:
+- **[context/README.md](./context/README.md)**: First-chat onboarding guide and executive summary.
+- **[context/01_PROJECT_WORKFLOW_AND_SKILLS.md](./context/01_PROJECT_WORKFLOW_AND_SKILLS.md)**: Mandatory 7-step task workflow and skill rules.
+- **[context/02_ARCHITECTURE_AND_SPECS_MAP.md](./context/02_ARCHITECTURE_AND_SPECS_MAP.md)**: Deep dive into system topology and specs map.
+- **[context/03_IMPLEMENTATION_STATUS_TRACKER.md](./context/03_IMPLEMENTATION_STATUS_TRACKER.md)**: **Live step-by-step progress matrix** for all 3 stacks.
+- **[context/04_CONVENTIONS_AND_PITFALLS.md](./context/04_CONVENTIONS_AND_PITFALLS.md)**: Hard rules, Express 5 quirks, no-self-approval, and runbook.
+
+---
+
 ## 🏛️ Architecture Overview
 
 The system consists of three interconnected services:
