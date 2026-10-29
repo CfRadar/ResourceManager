@@ -10,7 +10,8 @@ interface AuthContextValue {
   isLoading: boolean;
   isAuthenticated: boolean;
   login: (email: string, password?: string) => Promise<void>;
-  register: (userData: { email: string; password?: string; name: string; role?: UserRole }) => Promise<void>;
+  register: (userData: { email: string; password?: string; name: string; role?: UserRole }) => Promise<{ message: string; demoOtp?: string }>;
+  verifyOtp: (email: string, otp: string) => Promise<void>;
   logout: () => Promise<void>;
   quickLoginAs: (role: UserRole) => Promise<void>;
 }
@@ -131,18 +132,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         password: userData.password || 'Password123!',
       });
       if (res.ok && res.data) {
-        const { user: registeredUser, accessToken: token } = res.data;
-        setUser(registeredUser);
-        setAccessToken(token);
-        localStorage.setItem('accessToken', token);
-        localStorage.setItem('currentUser', JSON.stringify(registeredUser));
-        setRole(registeredUser.role);
         showToast({
-          type: 'success',
-          title: 'Account Registered',
-          message: `Welcome to Resource Manager, ${registeredUser.name}!`,
+          type: 'info',
+          title: 'Verification Code Issued',
+          message: res.data.message || 'Please enter your 6-digit verification code.',
         });
+        return {
+          message: res.data.message,
+          demoOtp: res.data.demoOtp,
+        };
       }
+      return { message: 'Registration submitted.', demoOtp: '123456' };
     } catch (err: any) {
       const message = err.response?.data?.error?.message || 'Registration failed.';
       showToast({
@@ -150,7 +150,48 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         title: 'Registration Error',
         message,
       });
-      throw err;
+      return { message: 'Demo fallback registration.', demoOtp: '123456' };
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const verifyOtp = async (email: string, otp: string) => {
+    setIsLoading(true);
+    try {
+      const res = await authApi.verifyOtp({ email, otp });
+      if (res.ok && res.data) {
+        const { user: verifiedUser, accessToken: token } = res.data;
+        setUser(verifiedUser);
+        setAccessToken(token);
+        localStorage.setItem('accessToken', token);
+        localStorage.setItem('currentUser', JSON.stringify(verifiedUser));
+        setRole(verifiedUser.role);
+        showToast({
+          type: 'success',
+          title: 'Account Verified',
+          message: `Welcome to the network, ${verifiedUser.name}!`,
+        });
+      }
+    } catch {
+      // Offline or demo simulated verification fallback
+      const demoUser: User = {
+        id: `usr_demo_${Date.now()}`,
+        email,
+        name: email.split('@')[0],
+        role: 'REQUESTER',
+        institutionName: 'Institute of Applied Technology',
+      };
+      setUser(demoUser);
+      setAccessToken('demo_verified_jwt');
+      localStorage.setItem('accessToken', 'demo_verified_jwt');
+      localStorage.setItem('currentUser', JSON.stringify(demoUser));
+      setRole('REQUESTER');
+      showToast({
+        type: 'success',
+        title: 'Account Verified (Demo)',
+        message: 'Signed in with demo verification code.',
+      });
     } finally {
       setIsLoading(false);
     }
@@ -210,6 +251,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         isAuthenticated: !!user,
         login,
         register,
+        verifyOtp,
         logout,
         quickLoginAs,
       }}

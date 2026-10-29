@@ -8,6 +8,7 @@ import { ResourcesPage } from '../features/resources/ResourcesPage';
 import { ResourceDetailPage } from '../features/resources/ResourceDetailPage';
 import { LoginPage } from '../features/auth/LoginPage';
 import { RegisterPage } from '../features/auth/RegisterPage';
+import { VerifyOtpPage } from '../features/auth/VerifyOtpPage';
 import { MyDashboardPage } from '../features/requester/MyDashboardPage';
 import { MyBookingsPage } from '../features/requester/MyBookingsPage';
 import { ReviewQueuePage } from '../features/manage/ReviewQueuePage';
@@ -29,6 +30,7 @@ export const router = createBrowserRouter([
       // Authentication Routes
       { path: 'login', element: <LoginPage /> },
       { path: 'register', element: <RegisterPage /> },
+      { path: 'verify-otp', element: <VerifyOtpPage /> },
 
       // Requester Workflows (Auth + Role Guard)
       {

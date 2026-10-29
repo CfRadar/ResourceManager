@@ -43,7 +43,7 @@
 | Area | Status | Notes |
 |---|---|---|
 | **Backend API** | Complete (100%) | Steps 00–10 complete: modular architecture, all middleware, auth, institutions, facilities, memberships, partner linking, resources catalog, dynamic policy versioning, visibility filtering, confidential field redaction, availability computation, slot generation, blackout collision gating, availability polling, 6-check deterministic eligibility engine, access request lifecycle, central state machine transition engine, reviewer queue, FIFO waitlisting, concurrency-safe bookings & QR check-in, staff-operated service requests, missing-resource intake, candidate discovery, cross-institutional referrals, incident reporting & impartial rulings, fair-use token ledger, simulated billing/invoicing, Excel/PDF/CSV exports, 7 scheduled background cron jobs, scheduler telemetry, SHA-256 tamper-evident hash chain verification, admin controls, in-app notifications, role dashboards, and AI proxy with fallback. |
-| **Frontend** | In progress | React 19 + Vite + TypeScript. Steps 00 & 01 complete: React Router 7, TanStack Query, Axios JWT interceptors, Role switcher, Auth/Toast contexts, Auth/Role guards, Tailwind v4 design tokens, and shared components (StatusBadge, ReasonDialog, DemoTag, AiSuggestionBadge, AuditIntegrityBadge, DemoBanner, AppLayout). Builds cleanly with 0 errors. |
+| **Frontend** | In progress | React 19 + Vite + TypeScript. Steps 00–02 complete: React Router 7, TanStack Query, Axios JWT interceptors, Role switcher, Auth/Toast contexts, Auth/Role guards, Tailwind v4 design tokens, shared components, LoginPage with sample credential hints, RegisterPage with OTP routing, VerifyOtpPage with auto-fill demo banner & 6-digit inputs, and JudgeToolbar with 1-click persona switching. Builds cleanly with 0 errors. |
 | **AI Service** | Complete (100%) | Steps 00–09 complete: FastAPI architecture, BaseSettings, X-Internal-Key validation, Pydantic V2 contracts, ReadOnlyRepository with psycopg v3 and fixtures, NeedParser (/ai/parse-need), VectorIndexer (all-MiniLM-L6-v2), BM25Okapi deterministic fallback matcher (/ai/match-need), index rebuild (/ai/reindex) with ISO timestamps, objective incident summary drafting (/ai/incident-summary), Express circuit breaker & anti-hallucination sanitization, resource update webhooks, latency benchmarks, and concurrency stress testing. 55 pytest tests passing. |
 | **Database** | Migrations ready | 7 Knex migration files (001–007) cover all spec entities; BaseRepository done; seed ready. Run `npm run migrate:latest`. |
 | **Orchestration** | Working | Root Makefile with `make install`, `make backend`, `make frontend`, `make agent`, `make clear` |
@@ -83,6 +83,22 @@
 ---
 
 ## 6. Change Log (newest first)
+
+### CHG-022 | 2026-10-29 | React Frontend Step 02 — Authentication, Virtual OTP Verification & Judge Quick Login
+- **Requested by:** User (BKL-004).
+- **Skills used:** `project-memory-workflow`
+- **What changed:**
+  - `frontend/src/api/auth.api.ts` — Added `RegisterResponseData` interface and `verifyOtp` API client method (`POST /api/v1/auth/verify-otp`).
+  - `frontend/src/context/AuthContext.tsx` — Added `verifyOtp(email, otp)` with automatic session persistence, role update, and offline demo fallback; updated `register(...)` signature to return `{ message, demoOtp }`.
+  - `frontend/src/features/auth/VerifyOtpPage.tsx` — Created 6-digit verification screen with auto-focus advancing, backspace navigation, paste handling, and demo transparency banner with 1-click `123456` auto-fill.
+  - `frontend/src/features/auth/RegisterPage.tsx` — Updated registration flow with institution affiliation and automatic redirection to `/verify-otp?email=...&demoOtp=...`.
+  - `frontend/src/features/auth/LoginPage.tsx` — Added fast credential fill buttons alongside 1-click persona quick logins, maintaining deep-link preservation (`?next=...`).
+  - `frontend/src/app/router.tsx` — Mounted `/verify-otp` as a public route.
+  - `context/03_IMPLEMENTATION_STATUS_TRACKER.md` — Marked Frontend Step 02 **DONE** (3/11 complete, ~27%).
+- **Why:** Provide full authentication lifecycle, evaluator transparency, and instant test-persona switching per Spec §5.16, §16, and Frontend Step 02.
+- **Verification:** Ran `cd frontend; npm.cmd run build` → `tsc -b && vite build` built in 397ms with **0 errors**; ran `cd backend; npm.cmd test` → **280/280 passed** across 19 suites; ran `cd UviAge; py -m uv run pytest` → **55/55 passed** across 7 suites.
+- **Commit:** Pending.
+- **Follow-ups:** Proceed to Step 03: Landing & AI Discovery (`Research/Frontend/03_LANDING_AND_AI_DISCOVERY.md`).
 
 ### CHG-021 | 2026-10-29 | Python Backend Steps 08 & 09 — Circuit Breaker, Anti-Hallucination Sanitizer, Reindex Webhook & Benchmarks
 - **Requested by:** User — "do step 8 and 9 of python backend"

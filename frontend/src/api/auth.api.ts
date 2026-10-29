@@ -18,6 +18,12 @@ export interface AuthResponseData {
   accessToken: string;
 }
 
+export interface RegisterResponseData {
+  message: string;
+  demoOtp?: string;
+  demoNote?: string;
+}
+
 export interface ApiResponse<T> {
   ok: boolean;
   data: T;
@@ -42,7 +48,12 @@ export const authApi = {
     institutionId?: string;
     role?: UserRole;
   }) => {
-    const res = await api.post<ApiResponse<AuthResponseData>>('/auth/register', userData);
+    const res = await api.post<ApiResponse<RegisterResponseData>>('/auth/register', userData);
+    return res.data;
+  },
+
+  verifyOtp: async (data: { email: string; otp: string }) => {
+    const res = await api.post<ApiResponse<AuthResponseData>>('/auth/verify-otp', data);
     return res.data;
   },
 
