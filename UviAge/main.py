@@ -6,7 +6,9 @@ from fastapi.middleware.cors import CORSMiddleware
 from auth import verify_internal_key
 from config import get_settings
 from matching import embedder
+from parsing.need_parser import parse_need_text
 import repository
+from schemas import ParseNeedRequest, ParseNeedResponse
 
 settings = get_settings()
 
@@ -61,6 +63,15 @@ async def protected_test():
         "service": "UviAge",
         "message": "Access granted to protected AI endpoint",
     }
+
+
+@ai_router.post("/parse-need", response_model=ParseNeedResponse)
+async def parse_need_endpoint(payload: ParseNeedRequest) -> ParseNeedResponse:
+    """Parses natural language research need into structured equipment requirements.
+
+    Spec §4.24 & §6.1 (Step 03).
+    """
+    return parse_need_text(payload.text)
 
 
 app.include_router(ai_router)

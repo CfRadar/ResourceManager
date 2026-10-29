@@ -44,10 +44,10 @@
 |---|---|---|
 | **Backend API** | Complete (100%) | Steps 00–10 complete: modular architecture, all middleware, auth, institutions, facilities, memberships, partner linking, resources catalog, dynamic policy versioning, visibility filtering, confidential field redaction, availability computation, slot generation, blackout collision gating, availability polling, 6-check deterministic eligibility engine, access request lifecycle, central state machine transition engine, reviewer queue, FIFO waitlisting, concurrency-safe bookings & QR check-in, staff-operated service requests, missing-resource intake, candidate discovery, cross-institutional referrals, incident reporting & impartial rulings, fair-use token ledger, simulated billing/invoicing, Excel/PDF/CSV exports, 7 scheduled background cron jobs, scheduler telemetry, SHA-256 tamper-evident hash chain verification, admin controls, in-app notifications, role dashboards, and AI proxy with fallback. |
 | **Frontend** | In progress | React + Vite + TypeScript initialized with basic App component on port 5173 |
-| **AI Service** | In progress | Steps 00–02 complete: FastAPI architecture, BaseSettings, X-Internal-Key header validation, Pydantic V2 contracts, and ReadOnlyRepository with psycopg v3 and fixture fallback. 23 pytest tests passing. |
+| **AI Service** | In progress | Steps 00–03 complete: FastAPI architecture, BaseSettings, X-Internal-Key header validation, Pydantic V2 contracts, ReadOnlyRepository with psycopg v3, and NeedParser (/ai/parse-need) with taxonomy and regex extraction. 32 pytest tests passing. |
 | **Database** | Migrations ready | 7 Knex migration files (001–007) cover all spec entities; BaseRepository done; seed ready. Run `npm run migrate:latest`. |
 | **Orchestration** | Working | Root Makefile with `make install`, `make backend`, `make frontend`, `make agent`, `make clear` |
-| **Tests** | In progress | 295 tests passing (272 backend tests across 18 test suites + 23 UviAge AI service tests); 100% green |
+| **Tests** | In progress | 304 tests passing (272 backend tests across 18 test suites + 32 UviAge AI service tests); 100% green |
 
 **How to run:**
 - Install: `make install`
@@ -83,6 +83,25 @@
 ---
 
 ## 6. Change Log (newest first)
+
+### CHG-017 | 2026-10-29 | UviAge Step 03 — Natural Language Need Parser (`/ai/parse-need`)
+- **Requested by:** User — "@03_NATURAL_LANGUAGE_NEED_PARSER.md start this" (BKL-003).
+- **Skills used:** `project-memory-workflow`
+- **What changed:**
+  - `UviAge/parsing/need_parser.py` — Implemented `NeedParser` and `parse_need_text()`:
+    - Laboratory taxonomy matching covering 9 key domains (`3D Printing`, `Laser Cutting`, `Microscopy`, `CNC Machining`, `Spectroscopy`, `Thermal Analysis`, `Electronics`, `Materials Testing`, `Meeting Space`).
+    - Dimensional and technical unit regex extractors (`layerHeight`, `wavelength`, `power`, `force`, `voltage`, `frequency`, `temperature`, `thickness`).
+    - Capability tag mapping (`biocompatible`, `high-resolution`, `SEM`, `TEM`, `FDM`, `SLA`, `CO2_LASER`, `5-axis`, `cleanroom`, etc.).
+    - Access mode preference detection (`IN_PERSON`, `STAFF_OPERATED`, `SEND_SAMPLE`) and `staffServiceOk` boolean flag.
+    - Duration hours, budget, and geographic location extractors.
+    - Robust fallback for unrecognized queries returning `General Laboratory` with baseline 0.50 confidence.
+  - `UviAge/main.py` — Mounted `POST /ai/parse-need` on `ai_router` protected by `X-Internal-Key` dependency.
+  - `UviAge/tests/test_parser.py` — 11 comprehensive tests verifying multi-need prompt extraction, unit regex parsing, access modes, duration/budget, fallbacks, and HTTP status codes (200, 403, 422).
+  - `context/03_IMPLEMENTATION_STATUS_TRACKER.md` — Marked Step 03 **DONE** (32 pytest tests passing).
+- **Why:** Enable researchers to express equipment requirements in natural language and receive structured requirements for candidate discovery per Spec §4.24 and §6.1.
+- **Verification:** Ran `cd UviAge; py -m uv run pytest` → **32/32 tests passing** (100% green); ran `cd backend; npm.cmd test` → **272/272 tests passing across 18 test suites**; ran `cd frontend; npm.cmd run build` → **0 errors**.
+- **Commit:** Pending.
+- **Follow-ups:** Proceed to Step 04 (Vector Embedding & Indexing) / Step 05 (Re-ranking) or Frontend Step 00/01.
 
 ### CHG-016 | 2026-10-29 | Step 10 — Scheduled Background Jobs, Audit Hash Chain, Admin Control, Notifications, Dashboards, AI Proxy & Health Probes
 - **Requested by:** User — "yes" (BKL-015).
@@ -555,7 +574,7 @@
 - [x] BKL-013 done in CHG-014 (Step 08: Staff-Operated Services, Missing-Resource Needs & Referrals, 217 backend tests)
 - [x] BKL-014 done in CHG-015 (Step 09: Incidents, Tokens, Payments & PDF/Excel Exports, 241 backend tests)
 - [x] BKL-015 done in CHG-016 (Step 10: 7 scheduled cron jobs, scheduler telemetry, SHA-256 audit hash chain verification, admin control, notifications, dashboards, AI proxy, 272 backend tests)
-- [ ] BKL-003 (P0) Implement UviAge `/ai/parse-need` and `/ai/match-need` endpoints | Source: Research/01_BACKEND_API_SPEC.md
+- [ ] BKL-003 (P0) Implement UviAge `/ai/parse-need` (done in CHG-017) and `/ai/match-need` endpoints | Source: Research/01_BACKEND_API_SPEC.md
 - [ ] BKL-004 (P1) Implement React frontend navigation, layout, and resource catalog pages | Source: Research/02_FRONTEND_DESIGN_SPEC.md
 - [ ] BKL-005 (P1) Implement end-to-end booking reservation and approval workflow | Source: Research/01_BACKEND_API_SPEC.md
 
