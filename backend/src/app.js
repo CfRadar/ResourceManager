@@ -146,6 +146,19 @@ function buildApiRouter() {
   router.use('/need-requests',    needRequestsRouter);
   router.use('/referrals',        referralsRouter);
 
+  // ── Incidents, Tokens, Payments & Exports (Step 09) ───────────────────────
+  const incidentsRouter = require('./modules/incidents/incidents.router');
+  const { tokensRouter, adminTokensRouter } = require('./modules/tokens/tokens.router');
+  const { paymentsRouter, invoicesRouter } = require('./modules/payments/payments.router');
+  const exportsRouter = require('./modules/exports/exports.router');
+
+  router.use('/incidents',    incidentsRouter);
+  router.use('/tokens',       tokensRouter);
+  router.use('/admin/tokens', adminTokensRouter);
+  router.use('/',             paymentsRouter);
+  router.use('/invoices',     invoicesRouter);
+  router.use('/exports',      exportsRouter);
+
   return router;
 }
 

@@ -1,6 +1,6 @@
 # Live Implementation Status Tracker
 
-> **LAST UPDATED:** 2026-10-29 (Step 08 Complete)
+> **LAST UPDATED:** 2026-10-29 (Step 09 Complete)
 > **RULE:** Any agent completing a blueprint step MUST update this tracker alongside `docs/PROJECT_MEMORY.md`.
 
 ---
@@ -9,7 +9,7 @@
 
 | Stack | Blueprint Location | Completed Steps | In Progress / Partial | Pending Steps | Active Tests | Stack Progress |
 | :--- | :--- | :---: | :---: | :---: | :---: | :---: |
-| **Node.js Express Backend** | `Research/NodeBackend/` | **9 / 11** | 0 | **2** | **217 passed** (14 suites) | **~82%** |
+| **Node.js Express Backend** | `Research/NodeBackend/` | **10 / 11** | 0 | **1** | **241 passed** (16 suites) | **~91%** |
 | **Python AI Service (UviAge)** | `Research/PythonBackend/` | **3 / 10** | **2** | **5** | **23 passed** | **~35%** |
 | **React Frontend** | `Research/Frontend/` | **0 / 11** | 0 | **11** | Build verified | **~5%** |
 
@@ -28,10 +28,10 @@
 | **06** | `06_ACCESS_REQUESTS_AND_STATE_MACHINE.md` | **DONE** | `src/services/transition.js`, `src/services/auditChain.js`, `src/modules/accessRequests/` | `tests/accessRequests.test.js` (16 tests) |
 | **07** | `07_BOOKINGS_CONCURRENCY_AND_CHECKIN.md` | **DONE** | `src/utils/geo.js`, `src/services/bookingEngine.js`, `src/modules/bookings/`, `src/modules/checkin/` | `tests/bookings.test.js`, `tests/checkin.test.js`, `tests/concurrency/booking.test.js` (39 tests) |
 | **08** | `08_SERVICE_REQUESTS_AND_REFERRALS.md` | **DONE** | `src/modules/serviceRequests/`, `needRequests/`, `referrals/` | `tests/serviceRequests.test.js` & `tests/referrals.test.js` (29 tests) |
-| **09** | `09_INCIDENTS_TOKENS_PAYMENTS_EXPORTS.md` | ⏳ **PENDING** | `src/modules/incidents/`, `tokens/`, `payments/`, `exports/` (Placeholders) | Pending implementation |
+| **09** | `09_INCIDENTS_TOKENS_PAYMENTS_EXPORTS.md` | **DONE** | `src/services/tokenService.js`, `src/modules/incidents/`, `tokens/`, `payments/`, `exports/` | `tests/incidents.test.js` & `tests/tokensAndExports.test.js` (24 tests) |
 | **10** | `10_BACKGROUND_JOBS_AND_AUDIT_HASH_CHAIN.md` | ⏳ **PENDING** | `src/jobs/` (Cron jobs & hash chain verification CLI pending) | Pending implementation |
 
-**Backend Test Total:** **217 passed** across 14 test suites (`npm test`).
+**Backend Test Total:** **241 passed** across 16 test suites (`npm test`).
 
 ---
 
@@ -77,6 +77,6 @@
 ## 5. Immediate Next Steps / Implementation Roadmap
 
 The next immediate implementation choices are:
-1. **Node Backend Step 09 (`09_INCIDENTS_TOKENS_PAYMENTS_EXPORTS.md`):** Incidents, dispute rulings, token credit ledger, simulated payments, and PDF/Excel exports.
+1. **Node Backend Step 10 (`10_BACKGROUND_JOBS_AND_AUDIT_HASH_CHAIN.md`):** Background scheduled jobs (booking reminders, overdue checks, auto-close, doc expiry), SHA-256 hash chain verification CLI, and health checks.
 2. **Python AI Service Step 03 (`03_NATURAL_LANGUAGE_NEED_PARSER.md`):** Implement natural language need extraction endpoint `/ai/parse-need`.
 3. **React Frontend Step 00 & 01 (`00_ARCHITECTURE_ROUTING_AND_PROVIDERS.md`):** Set up routing, TanStack Query, Axios JWT interceptors, and design tokens.

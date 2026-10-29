@@ -86,5 +86,16 @@ router.get(
   serviceRequestsController.listFacilityQueue
 );
 
+// GET /api/v1/facilities/:id/incidents — Facility incident queue (Spec §4.16)
+const { incidentsController } = require('../incidents/incidents.controller');
+const { listIncidentsQuerySchema } = require('../incidents/incidents.schema');
+
+router.get(
+  '/:id/incidents',
+  authenticate,
+  validate({ params: facilityIdParamSchema, query: listIncidentsQuerySchema }),
+  incidentsController.listFacilityQueue
+);
+
 module.exports = router;
 

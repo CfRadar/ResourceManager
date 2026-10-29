@@ -1,23 +1,23 @@
 # Module: tokens
 
-Append-only token/credit ledger — fair-use economy (Spec §4.17).
+Append-only token/credit ledger — fair-use economy (Spec §4.17, Step 09).
 
 **Implemented in:** Step 09 — Incidents, Tokens, Payments & Exports
 
 ## Key constraints
 - Ledger rows are NEVER updated or deleted. Balance = SUM of entries.
-- Token operations (hold, charge, refund) are internal; they are called by other services
-  within database transactions, not exposed as direct endpoints.
+- Operations (`hold`, `charge`, `refund`, `grant`) are append-only.
 - `tokenService.js` is the canonical interface.
 
-## Planned endpoints
+## Implemented Endpoints
 | Method | Path | Auth | Notes |
 |---|---|---|---|
-| GET  | `/api/v1/tokens/balance` | Requester | Balance + held + monthly allowance |
-| GET  | `/api/v1/tokens/ledger` | Requester | Own ledger (append-only entries) |
+| GET  | `/api/v1/tokens/balance` | Requester | Balance + held + available credits |
+| GET  | `/api/v1/tokens/ledger` | Requester | Own ledger history (append-only) |
 | POST | `/api/v1/admin/tokens/grant` | Admin | Grant tokens with reason |
 
-## Files (to be created in Step 09)
+## Files
 - `tokens.router.js`
 - `tokens.controller.js`
-- (delegates to `services/tokenService.js`)
+- `tokens.schema.js`
+- `../../services/tokenService.js`

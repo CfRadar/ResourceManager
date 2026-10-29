@@ -42,12 +42,12 @@
 
 | Area | Status | Notes |
 |---|---|---|
-| **Backend API** | In progress | Steps 00–08 complete: modular architecture, all middleware, auth, institutions, facilities, memberships, partner linking, resources catalog, dynamic policy versioning, visibility filtering, confidential field redaction, availability computation, slot generation, blackout collision gating, availability polling, 6-check deterministic eligibility engine, access request lifecycle, central state machine transition engine, reviewer queue, FIFO waitlisting, concurrency-safe bookings & QR check-in, staff-operated service requests (scope review, quotes, sample intake, deliverables), missing-resource intake, candidate discovery, and privacy-preserving cross-institutional referrals. Steps 09–10 pending. |
+| **Backend API** | In progress | Steps 00–09 complete: modular architecture, all middleware, auth, institutions, facilities, memberships, partner linking, resources catalog, dynamic policy versioning, visibility filtering, confidential field redaction, availability computation, slot generation, blackout collision gating, availability polling, 6-check deterministic eligibility engine, access request lifecycle, central state machine transition engine, reviewer queue, FIFO waitlisting, concurrency-safe bookings & QR check-in, staff-operated service requests, missing-resource intake, candidate discovery, cross-institutional referrals, incident reporting & impartial rulings, fair-use token ledger, simulated billing/invoicing, and Excel/PDF/CSV exports. Step 10 pending. |
 | **Frontend** | In progress | React + Vite + TypeScript initialized with basic App component on port 5173 |
 | **AI Service** | In progress | Steps 00–02 complete: FastAPI architecture, BaseSettings, X-Internal-Key header validation, Pydantic V2 contracts, and ReadOnlyRepository with psycopg v3 and fixture fallback. 23 pytest tests passing. |
 | **Database** | Migrations ready | 7 Knex migration files (001–007) cover all spec entities; BaseRepository done; seed ready. Run `npm run migrate:latest`. |
 | **Orchestration** | Working | Root Makefile with `make install`, `make backend`, `make frontend`, `make agent`, `make clear` |
-| **Tests** | In progress | 240 tests passing (217 backend tests across 14 test suites + 23 UviAge AI service tests); all green |
+| **Tests** | In progress | 264 tests passing (241 backend tests across 16 test suites + 23 UviAge AI service tests); all green |
 
 **How to run:**
 - Install: `make install`
@@ -83,6 +83,48 @@
 ---
 
 ## 6. Change Log (newest first)
+
+### CHG-015 | 2026-10-29 | Step 09 — Incidents, Tokens, Invoicing & Document Exports
+- **Requested by:** User — "continue" (BKL-014).
+- **Skills used:** `project-memory-workflow`
+- **What changed:**
+  - `backend/src/services/tokenService.js` — Implemented append-only credit ledger service: `balance(userId)` (computing total balance, active holds, available credits, and monthly allowance), `hold(userId, amount, refType, refId, reason)` with balance gating, `charge(userId, amount, refType, refId, reason)`, `refund(userId, amount, refType, refId, reason)`, `grant(userId, amount, adminId, reason)`, and paginated `getLedger`.
+  - `backend/src/services/transition.js` — Updated `isResumingReview` exemption logic to permit right-of-reply response transitions (`INFO_REQUESTED → UNDER_REVIEW`) without triggering self-approval lockout on parties.
+  - `backend/src/modules/incidents/` — Implemented schemas, repository, service, controller, and router:
+    - Incident filing (`POST /api/v1/incidents`) with severity, type, and auto-created initial shared note.
+    - Caller incident history (`GET /api/v1/incidents/mine`).
+    - Detail view (`GET /api/v1/incidents/:id`) with automatic redaction of `INTERNAL` staff notes from requesters.
+    - Facility incident queue (`GET /api/v1/facilities/:id/incidents`).
+    - Append-only notes timeline (`POST /api/v1/incidents/:id/notes`) enforcing `SHARED` visibility for non-staff authors.
+    - Info requests (`POST /api/v1/incidents/:id/request-info`) advancing `REPORTED → UNDER_REVIEW → INFO_REQUESTED`.
+    - Right-of-reply evidence statement (`POST /api/v1/incidents/:id/respond`) returning status to `UNDER_REVIEW`.
+    - Impartial ruling (`POST /api/v1/incidents/:id/resolve`) enforcing strict `assertNoSelfApproval` against both reporter and parties to the booking/service, recording findings and recommended remedy (`RESOLVED` or `DISMISSED`).
+    - Single-level escalation appeal (`POST /api/v1/incidents/:id/appeal`) incrementing `appeal_count` (capped at 1) and returning incident to `UNDER_REVIEW` for secondary review.
+    - AI-assisted factual summary drafting (`POST /api/v1/incidents/:id/draft-summary`) calling `aiClient` with graceful deterministic fallback.
+  - `backend/src/modules/tokens/` — Implemented schemas, controller, and routers:
+    - User balance breakdown (`GET /api/v1/tokens/balance`).
+    - User ledger history (`GET /api/v1/tokens/ledger`).
+    - Admin grant (`POST /api/v1/admin/tokens/grant`) gated to platform administrators.
+  - `backend/src/modules/payments/` — Implemented schemas, service, controller, and routers:
+    - Cost estimate breakdown (`GET /api/v1/bookings/:id/cost-estimate`) based on resource policy hourly rates and operator fees, with `"demo": true`.
+    - Demo invoice generation (`POST /api/v1/bookings/:id/invoice`) with itemized line items and `"demo": true`.
+    - Simulated invoice settlement (`POST /api/v1/invoices/:id/mark-paid`) returning `"demo": true` and sandbox notice: *"Simulated payment in sandbox. No money moved."*.
+  - `backend/src/modules/exports/` — Implemented schemas, service, controller, and router:
+    - Facility bookings report spreadsheet (`GET /api/v1/exports/bookings.xlsx`) generating binary `.xlsx` stream via `exceljs`.
+    - Institutional equipment utilization report (`GET /api/v1/exports/usage-report.xlsx`) via `exceljs`.
+    - Tamper-evident SHA-256 audit log stream (`GET /api/v1/exports/audit.csv`) in CSV format.
+    - Formal one-page incident dossier (`GET /api/v1/exports/incident-report/:id.pdf`) generating `.pdf` stream via `pdfkit`.
+    - Official transaction history receipt (`GET /api/v1/exports/transaction/:requestId.pdf`) generating `.pdf` stream via `pdfkit`.
+    - Every export operation appends an audit event (`EXPORT_GENERATED`).
+  - `backend/src/modules/facilities/facilities.router.js` & `backend/src/app.js` — Mounted incident facility queue and top-level routers for `/incidents`, `/tokens`, `/admin/tokens`, `/payments`, and `/exports`.
+  - `backend/package.json` — Added `exceljs` (^4.4.0) and `pdfkit` (^0.17.2).
+  - `backend/tests/incidents.test.js` — 11 test blocks covering incident filing, note visibility gating, info requests, right of reply, impartial rulings, self-approval lockouts, single appeal limits, and AI summary drafting.
+  - `backend/tests/tokensAndExports.test.js` — 10 test blocks covering token balances, ledger, admin grants, cost estimates, demo invoices, simulated payment, and XLSX/CSV/PDF binary stream exports.
+  - `context/03_IMPLEMENTATION_STATUS_TRACKER.md` — Marked Step 09 **DONE** (241 backend tests passing across 16 suites).
+- **Why:** Provide complete incident investigation, impartial dispute rulings, fair-use token ledger, simulated billing/invoicing, and production-grade spreadsheet and PDF export capabilities per Spec §4.16, §4.17, §4.18, and §4.22.
+- **Verification:** Ran `cd backend; npm.cmd test` → **241/241 tests passing across 16 test suites**; ran `cd frontend; npm.cmd run build` → **0 errors**.
+- **Commit:** Pending.
+- **Follow-ups:** Step 10: Background Jobs and Audit Hash Chain (`Research/NodeBackend/10_BACKGROUND_JOBS_AND_AUDIT_HASH_CHAIN.md`).
 
 ### CHG-014 | 2026-10-29 | Step 08 — Staff-Operated Services, Missing-Resource Needs & Referrals
 - **Requested by:** User — "@08_SERVICE_REQUESTS_AND_REFERRALS.md start with this process" (BKL-013).
@@ -453,7 +495,8 @@
 - [x] BKL-011 done in CHG-011 (Step 06: Access Requests, State Machine, Review Queue & Appeals, 149 backend tests)
 - [x] BKL-012 done in CHG-013 (Step 07: Bookings, Concurrency, Check-In, Geofencing, Signatures & Returns, 188 backend tests)
 - [x] BKL-013 done in CHG-014 (Step 08: Staff-Operated Services, Missing-Resource Needs & Referrals, 217 backend tests)
-- [ ] BKL-014 (P0) Implement Step 09: Incidents, Tokens, Payments & PDF/Excel Exports | Source: Research/NodeBackend/09_INCIDENTS_TOKENS_PAYMENTS_EXPORTS.md
+- [x] BKL-014 done in CHG-015 (Step 09: Incidents, Tokens, Payments & PDF/Excel Exports, 241 backend tests)
+- [ ] BKL-015 (P0) Implement Step 10: Background Jobs and Audit Hash Chain | Source: Research/NodeBackend/10_BACKGROUND_JOBS_AND_AUDIT_HASH_CHAIN.md
 - [ ] BKL-003 (P0) Implement UviAge `/ai/parse-need` and `/ai/match-need` endpoints | Source: Research/01_BACKEND_API_SPEC.md
 - [ ] BKL-004 (P1) Implement React frontend navigation, layout, and resource catalog pages | Source: Research/02_FRONTEND_DESIGN_SPEC.md
 - [ ] BKL-005 (P1) Implement end-to-end booking reservation and approval workflow | Source: Research/01_BACKEND_API_SPEC.md

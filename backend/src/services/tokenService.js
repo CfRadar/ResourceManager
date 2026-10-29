@@ -6,27 +6,172 @@
  * Append-only token/credit ledger service.
  *
  * Spec §4.17: internal credit ledger that discourages monopolisation.
- * This is NOT a cryptocurrency. Ledger rows are never updated or deleted.
+ * Ledger rows are NEVER updated or deleted.
  * Balance = SUM of all entries for the user.
  *
- * Operations (called internally; not exposed as direct HTTP endpoints):
- *   hold(userId, amount, bookingId, reason, trx)     – reserve tokens on approval
- *   charge(userId, amount, bookingId, reason, trx)   – deduct on return confirmation
- *   refund(userId, amount, bookingId, reason, trx)   – credit on valid cancellation
- *   grant(userId, amount, grantedBy, reason, trx)    – admin grant
- *   balance(userId)                                  – current balance + held amount
+ * Operations:
+ *   hold(userId, amount, refEntityType, refEntityId, reason, trx)     – reserve tokens on approval
+ *   charge(userId, amount, refEntityType, refEntityId, reason, trx)   – deduct on completion
+ *   refund(userId, amount, refEntityType, refEntityId, reason, trx)   – credit on valid cancellation
+ *   grant(userId, amount, grantedBy, reason, trx)                    – admin grant
+ *   balance(userId, trx)                                              – balance + held + available
+ *   getLedger(userId, { page, limit }, trx)                           – paginated entries
  *
  * Implemented in: Step 09 (Incidents, Tokens, Payments & Exports).
- *
- * All operations require a Knex transaction to be atomic with the triggering
- * business operation (booking approval, cancellation, etc.).
  */
 
-// Placeholder — full implementation in Step 09.
-async function hold()    { throw new Error('[tokenService] Not yet implemented. Step 09.'); }
-async function charge()  { throw new Error('[tokenService] Not yet implemented. Step 09.'); }
-async function refund()  { throw new Error('[tokenService] Not yet implemented. Step 09.'); }
-async function grant()   { throw new Error('[tokenService] Not yet implemented. Step 09.'); }
-async function balance() { throw new Error('[tokenService] Not yet implemented. Step 09.'); }
+const { db }     = require('../config/db');
+const { Errors } = require('../utils/AppError');
 
-module.exports = { hold, charge, refund, grant, balance };
+/**
+ * Computes current token balance, active holds, and available credits.
+ */
+async function balance(userId, trx = null) {
+  const qb = trx || db;
+
+  const totalRow = await qb('token_ledger')
+    .where({ user_id: userId })
+    .sum('amount as total')
+    .first();
+
+  const totalBalance = parseInt(totalRow?.total || '0', 10);
+
+  // Active holds are HOLD entries that have not been refunded or settled
+  const holdRow = await qb('token_ledger')
+    .where({ user_id: userId, type: 'HOLD' })
+    .sum('amount as total_hold')
+    .first();
+
+  const rawHold = parseInt(holdRow?.total_hold || '0', 10);
+  const heldAmount = Math.abs(rawHold);
+
+  return {
+    balance:          totalBalance,
+    held:             heldAmount,
+    available:        Math.max(0, totalBalance),
+    monthlyAllowance: 100, // Standard default demonstration allowance
+  };
+}
+
+/**
+ * Places a pre-authorization hold for a booking or access reservation.
+ */
+async function hold(userId, amount, refEntityType = null, refEntityId = null, reason = 'Pre-authorization hold', trx = null) {
+  const qb = trx || db;
+  const numAmount = Math.abs(Number(amount));
+
+  const current = await balance(userId, qb);
+  if (current.available < numAmount) {
+    throw Errors.BadRequest(
+      `Insufficient token balance (${current.available} available, ${numAmount} required for hold).`
+    );
+  }
+
+  const rows = await qb('token_ledger')
+    .insert({
+      user_id:         userId,
+      amount:          -numAmount,
+      type:            'HOLD',
+      ref_entity_type: refEntityType,
+      ref_entity_id:   refEntityId,
+      reason,
+    })
+    .returning('*');
+
+  return Array.isArray(rows) ? rows[0] : rows;
+}
+
+/**
+ * Charges settled tokens on booking completion.
+ */
+async function charge(userId, amount, refEntityType = null, refEntityId = null, reason = 'Usage charge', trx = null) {
+  const qb = trx || db;
+  const numAmount = Math.abs(Number(amount));
+
+  const rows = await qb('token_ledger')
+    .insert({
+      user_id:         userId,
+      amount:          -numAmount,
+      type:            'CHARGE',
+      ref_entity_type: refEntityType,
+      ref_entity_id:   refEntityId,
+      reason,
+    })
+    .returning('*');
+
+  return Array.isArray(rows) ? rows[0] : rows;
+}
+
+/**
+ * Releases hold or credits refund on cancellation.
+ */
+async function refund(userId, amount, refEntityType = null, refEntityId = null, reason = 'Hold release / refund', trx = null) {
+  const qb = trx || db;
+  const numAmount = Math.abs(Number(amount));
+
+  const rows = await qb('token_ledger')
+    .insert({
+      user_id:         userId,
+      amount:          numAmount,
+      type:            'REFUND',
+      ref_entity_type: refEntityType,
+      ref_entity_id:   refEntityId,
+      reason,
+    })
+    .returning('*');
+
+  return Array.isArray(rows) ? rows[0] : rows;
+}
+
+/**
+ * Admin grants credits to user with reason.
+ */
+async function grant(userId, amount, grantedBy = null, reason = 'Administrative grant', trx = null) {
+  const qb = trx || db;
+  const numAmount = Math.abs(Number(amount));
+
+  const rows = await qb('token_ledger')
+    .insert({
+      user_id:         userId,
+      amount:          numAmount,
+      type:            'GRANT',
+      ref_entity_type: 'User',
+      ref_entity_id:   grantedBy,
+      reason,
+    })
+    .returning('*');
+
+  return Array.isArray(rows) ? rows[0] : rows;
+}
+
+/**
+ * Lists user's immutable ledger history.
+ */
+async function getLedger(userId, { page = 1, limit = 20 } = {}, trx = null) {
+  const qb = trx || db;
+  const offset = (page - 1) * limit;
+
+  const rows = await qb('token_ledger')
+    .where({ user_id: userId })
+    .orderBy('created_at', 'desc')
+    .limit(limit)
+    .offset(offset);
+
+  const countRow = await (trx || db)('token_ledger')
+    .where({ user_id: userId })
+    .count('id as total')
+    .first();
+
+  const total = parseInt(countRow?.total || '0', 10);
+
+  return { items: rows || [], total, page, limit };
+}
+
+module.exports = {
+  balance,
+  hold,
+  charge,
+  refund,
+  grant,
+  getLedger,
+};

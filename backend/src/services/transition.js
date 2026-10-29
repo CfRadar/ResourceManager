@@ -166,10 +166,10 @@ async function transition(entityType, entityOrId, toState, actor, reason = null,
     // 3. Enforce strict self-approval prevention (Spec §2.2)
     const reviewerId = actor?.sub || actor?.id;
     const requesterId = entity.requester_id || entity.user_id || entity.reporter_id;
-    const isAppeal = ['REJECTED', 'WAITLISTED'].includes(fromState) && toState === 'UNDER_REVIEW';
+    const isResumingReview = ['REJECTED', 'WAITLISTED', 'APPEALED', 'INFO_REQUESTED'].includes(fromState) && toState === 'UNDER_REVIEW';
 
     if (
-      !isAppeal &&
+      !isResumingReview &&
       ['APPROVED', 'REJECTED', 'UNDER_REVIEW'].includes(toState) &&
       reviewerId &&
       requesterId &&
