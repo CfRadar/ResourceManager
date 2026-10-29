@@ -42,12 +42,12 @@
 
 | Area | Status | Notes |
 |---|---|---|
-| **Backend API** | In progress | Steps 00–06 complete: modular architecture, all middleware, auth, institutions, facilities, memberships, partner linking, resources catalog, dynamic policy versioning, visibility filtering, confidential field redaction, availability computation, slot generation, blackout collision gating, availability polling, 6-check deterministic eligibility engine, access request lifecycle, central state machine transition engine, reviewer queue, FIFO waitlisting, booking conflict handling, and appeals. Steps 07–10 pending. |
+| **Backend API** | In progress | Steps 00–08 complete: modular architecture, all middleware, auth, institutions, facilities, memberships, partner linking, resources catalog, dynamic policy versioning, visibility filtering, confidential field redaction, availability computation, slot generation, blackout collision gating, availability polling, 6-check deterministic eligibility engine, access request lifecycle, central state machine transition engine, reviewer queue, FIFO waitlisting, concurrency-safe bookings & QR check-in, staff-operated service requests (scope review, quotes, sample intake, deliverables), missing-resource intake, candidate discovery, and privacy-preserving cross-institutional referrals. Steps 09–10 pending. |
 | **Frontend** | In progress | React + Vite + TypeScript initialized with basic App component on port 5173 |
 | **AI Service** | In progress | Steps 00–02 complete: FastAPI architecture, BaseSettings, X-Internal-Key header validation, Pydantic V2 contracts, and ReadOnlyRepository with psycopg v3 and fixture fallback. 23 pytest tests passing. |
 | **Database** | Migrations ready | 7 Knex migration files (001–007) cover all spec entities; BaseRepository done; seed ready. Run `npm run migrate:latest`. |
 | **Orchestration** | Working | Root Makefile with `make install`, `make backend`, `make frontend`, `make agent`, `make clear` |
-| **Tests** | In progress | 172 tests passing (149 backend tests across 9 test suites + 23 UviAge AI service tests); all green |
+| **Tests** | In progress | 240 tests passing (217 backend tests across 14 test suites + 23 UviAge AI service tests); all green |
 
 **How to run:**
 - Install: `make install`
@@ -83,6 +83,46 @@
 ---
 
 ## 6. Change Log (newest first)
+
+### CHG-014 | 2026-10-29 | Step 08 — Staff-Operated Services, Missing-Resource Needs & Referrals
+- **Requested by:** User — "@08_SERVICE_REQUESTS_AND_REFERRALS.md start with this process" (BKL-013).
+- **Skills used:** `project-memory-workflow`
+- **What changed:**
+  - `backend/src/services/transition.js` — Enhanced `SERVICE_REQUEST_TRANSITIONS` with `NOT_FEASIBLE`, registered `NeedRequest` in `TABLE_MAP` with `NEED_REQUEST_TRANSITIONS`, and wired SHA-256 audit chaining for service and need events.
+  - `backend/src/modules/serviceRequests/` — Implemented schemas, repository, service, controller, and router:
+    - Service request creation (`POST /api/v1/service-requests`) validating `STAFF_SERVICE` policy mode.
+    - User service requests listing (`GET /api/v1/service-requests/mine`).
+    - Detail view with joined parties and active itemized quote (`GET /api/v1/service-requests/:id`).
+    - Scope review (`POST /api/v1/service-requests/:id/scope-review`) marking feasible/infeasible with strict `assertNoSelfApproval`.
+    - Itemized quote issuance (`POST /api/v1/service-requests/:id/quote`) with line items, total calculation, and `"demo": true`.
+    - Requester quote response (`POST /api/v1/service-requests/:id/quote/respond`) with `ACCEPT` (advancing to `AWAITING_MATERIALS` or `SERVICE_IN_PROGRESS`) and `DECLINE` (closing request).
+    - Physical sample intake receipt recording (`POST /api/v1/service-requests/:id/materials-received`).
+    - Progress milestones (`POST /api/v1/service-requests/:id/progress`) for `STARTED` and `IN_ANALYSIS`.
+    - Deliverables upload (`POST /api/v1/service-requests/:id/deliver-output`) advancing to `OUTPUT_DELIVERED`.
+    - Completion sign-off or dispute triggering (`POST /api/v1/service-requests/:id/confirm-completion`).
+    - Manager rejection with mandatory reason (`POST /api/v1/service-requests/:id/decision`).
+    - Cancellation handling (`POST /api/v1/service-requests/:id/cancel`).
+  - `backend/src/modules/needRequests/` — Implemented schemas, repository, service, controller, and router:
+    - Missing-resource need intake (`POST /api/v1/need-requests`) with capabilities, timeframe, and contact sharing consent.
+    - Requester need listing (`GET /api/v1/need-requests/mine`).
+    - Coordinator network queue (`GET /api/v1/need-requests`).
+    - Candidate discovery (`GET /api/v1/need-requests/:id/candidates`) calling `aiClient` with graceful deterministic keyword/category fallback.
+    - Need request closure (`POST /api/v1/need-requests/:id/close`) with outcome (`CLOSED_MET` / `CLOSED_UNMET`).
+  - `backend/src/modules/referrals/` — Implemented schemas, repository, service, controller, and router:
+    - Referral dispatch (`POST /api/v1/need-requests/:id/referrals`) linking target institution and resource.
+    - Receiving institution inbox (`GET /api/v1/referrals/inbox`) with requester contact withheld (`[WITHHELD - Contact not released]`) by default.
+    - Detail view (`GET /api/v1/referrals/:id`) with privacy sanitization.
+    - Referral response (`POST /api/v1/referrals/:id/respond`) strictly gated to receiving institution members and protected by `assertNoSelfApproval`.
+    - Contact release (`POST /api/v1/referrals/:id/release-contact`) releasing contact info only when requester gave consent and referral is `ACCEPTED`.
+  - `backend/src/modules/facilities/facilities.router.js` & `backend/src/app.js` — Mounted service request queue under `facilities/:id/service-requests` and top-level routers for `/service-requests`, `/need-requests`, and `/referrals`.
+  - `backend/tests/serviceRequests.test.js` — 14 test blocks covering service request creation, policy access gating, scope review, quote lifecycle, sample intake, progress, deliverables, and completion/disputes.
+  - `backend/tests/referrals.test.js` — 15 test blocks covering need intake, candidate discovery with fallback, referral dispatch, contact withholding, receiving institution response gating, self-approval prevention, and consent-gated contact release.
+  - `backend/src/modules/serviceRequests/README.md`, `needRequests/README.md`, `referrals/README.md` — Updated module inventories.
+  - `context/03_IMPLEMENTATION_STATUS_TRACKER.md` — Updated Step 08 to **DONE** (217 backend tests passing across 14 suites).
+- **Why:** Provide full staff-operated service lifecycle, missing-resource intake, AI/keyword candidate matching, and privacy-preserving cross-institutional referrals per Spec §4.13 and §4.14.
+- **Verification:** Ran `cd backend; npm.cmd test` → **217/217 tests passing across 14 test suites**; ran `cd frontend; npm.cmd run build` → **0 errors**.
+- **Commit:** Pending.
+- **Follow-ups:** Step 09: Incidents, Tokens, Payments & PDF/Excel Exports (`Research/NodeBackend/09_INCIDENTS_TOKENS_PAYMENTS_EXPORTS.md`).
 
 ### CHG-013 | 2026-10-29 | Step 07 — Bookings, Concurrency, Check-In & Physical Returns
 - **Requested by:** User — "@07_BOOKINGS_CONCURRENCY_AND_CHECKIN.md start this" (BKL-012).
@@ -412,6 +452,8 @@
 - [x] BKL-010B done in CHG-008B (UviAge Steps 00–02: FastAPI setup, Pydantic V2 contracts, ReadOnlyRepository, 23 tests)
 - [x] BKL-011 done in CHG-011 (Step 06: Access Requests, State Machine, Review Queue & Appeals, 149 backend tests)
 - [x] BKL-012 done in CHG-013 (Step 07: Bookings, Concurrency, Check-In, Geofencing, Signatures & Returns, 188 backend tests)
+- [x] BKL-013 done in CHG-014 (Step 08: Staff-Operated Services, Missing-Resource Needs & Referrals, 217 backend tests)
+- [ ] BKL-014 (P0) Implement Step 09: Incidents, Tokens, Payments & PDF/Excel Exports | Source: Research/NodeBackend/09_INCIDENTS_TOKENS_PAYMENTS_EXPORTS.md
 - [ ] BKL-003 (P0) Implement UviAge `/ai/parse-need` and `/ai/match-need` endpoints | Source: Research/01_BACKEND_API_SPEC.md
 - [ ] BKL-004 (P1) Implement React frontend navigation, layout, and resource catalog pages | Source: Research/02_FRONTEND_DESIGN_SPEC.md
 - [ ] BKL-005 (P1) Implement end-to-end booking reservation and approval workflow | Source: Research/01_BACKEND_API_SPEC.md

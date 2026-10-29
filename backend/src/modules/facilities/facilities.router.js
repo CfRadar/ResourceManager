@@ -75,5 +75,16 @@ router.get(
   bookingsCtrl.getFacilityCalendar
 );
 
+// GET /api/v1/facilities/:id/service-requests — Service request queue for facility (Spec §4.13)
+const { serviceRequestsController } = require('../serviceRequests/serviceRequests.controller');
+const { listServiceRequestsQuerySchema } = require('../serviceRequests/serviceRequests.schema');
+
+router.get(
+  '/:id/service-requests',
+  authenticate,
+  validate({ params: facilityIdParamSchema, query: listServiceRequestsQuerySchema }),
+  serviceRequestsController.listFacilityQueue
+);
+
 module.exports = router;
 

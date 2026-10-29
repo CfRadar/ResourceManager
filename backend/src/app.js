@@ -138,6 +138,14 @@ function buildApiRouter() {
   const bookingsRouter = require('./modules/bookings/bookings.router');
   router.use('/bookings', bookingsRouter);
 
+  // ── Service Requests, Need Requests & Referrals (Step 08) ───────────────────
+  const serviceRequestsRouter = require('./modules/serviceRequests/serviceRequests.router');
+  const needRequestsRouter    = require('./modules/needRequests/needRequests.router');
+  const referralsRouter       = require('./modules/referrals/referrals.router');
+  router.use('/service-requests', serviceRequestsRouter);
+  router.use('/need-requests',    needRequestsRouter);
+  router.use('/referrals',        referralsRouter);
+
   return router;
 }
 

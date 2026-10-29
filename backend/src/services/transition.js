@@ -50,7 +50,8 @@ const ACCESS_REQUEST_TRANSITIONS = {
 const SERVICE_REQUEST_TRANSITIONS = {
   DRAFT:                  ['SUBMITTED', 'CANCELLED'],
   SUBMITTED:              ['SCOPE_REVIEW', 'CANCELLED', 'REJECTED'],
-  SCOPE_REVIEW:           ['QUOTE_SENT', 'REJECTED', 'CANCELLED'],
+  SCOPE_REVIEW:           ['QUOTE_SENT', 'NOT_FEASIBLE', 'REJECTED', 'CANCELLED'],
+  NOT_FEASIBLE:           ['CLOSED', 'REJECTED'],
   QUOTE_SENT:             ['QUOTE_ACCEPTED', 'QUOTE_DECLINED', 'CANCELLED'],
   QUOTE_DECLINED:         ['CLOSED'],
   QUOTE_ACCEPTED:         ['AWAITING_MATERIALS', 'SERVICE_IN_PROGRESS', 'CANCELLED'],
@@ -62,6 +63,15 @@ const SERVICE_REQUEST_TRANSITIONS = {
   REJECTED:               [],
   CANCELLED:              [],
   CLOSED:                 [],
+};
+
+const NEED_REQUEST_TRANSITIONS = {
+  DRAFT:                    ['SUBMITTED', 'CLOSED_UNMET'],
+  SUBMITTED:                ['UNDER_COORDINATOR_REVIEW', 'CLOSED_UNMET'],
+  UNDER_COORDINATOR_REVIEW: ['CANDIDATE_IDENTIFIED', 'CLOSED_MET', 'CLOSED_UNMET'],
+  CANDIDATE_IDENTIFIED:     ['UNDER_COORDINATOR_REVIEW', 'CLOSED_MET', 'CLOSED_UNMET'],
+  CLOSED_MET:               [],
+  CLOSED_UNMET:             [],
 };
 
 const REFERRAL_TRANSITIONS = {
@@ -100,6 +110,7 @@ const BOOKING_TRANSITIONS = {
 const TABLE_MAP = {
   AccessRequest:  { table: 'access_requests', transitions: ACCESS_REQUEST_TRANSITIONS },
   ServiceRequest: { table: 'service_requests', transitions: SERVICE_REQUEST_TRANSITIONS },
+  NeedRequest:    { table: 'need_requests', transitions: NEED_REQUEST_TRANSITIONS },
   Referral:       { table: 'referrals', transitions: REFERRAL_TRANSITIONS },
   Incident:       { table: 'incidents', transitions: INCIDENT_TRANSITIONS },
   Booking:        { table: 'bookings', transitions: BOOKING_TRANSITIONS },
@@ -245,6 +256,7 @@ module.exports = {
   transition,
   ACCESS_REQUEST_TRANSITIONS,
   SERVICE_REQUEST_TRANSITIONS,
+  NEED_REQUEST_TRANSITIONS,
   REFERRAL_TRANSITIONS,
   INCIDENT_TRANSITIONS,
   BOOKING_TRANSITIONS,
