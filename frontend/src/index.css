@@ -1,29 +1,48 @@
-@import "tailwindcss";
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700&display=swap');
+@import 'tailwindcss';
+@import './results.css';
+@import './detail.css';
+@import './request-wizard.css';
+@import './review-queue.css';
+@import './check-in.css';
+@import './demo-toolbar.css';
+@import './intro.css';
+
+@theme {
+  --font-sans: 'DM Sans', sans-serif;
+  --font-display: 'Manrope', sans-serif;
+  --color-ink: #14201d;
+  --color-paper: #f4f4ed;
+  --color-acid: #d9ff64;
+}
 
 @layer base {
-  :root {
-    --primary-50: #eff6ff;
-    --primary-100: #dbeafe;
-    --primary-500: #3b82f6;
-    --primary-600: #2563eb;
-    --primary-700: #1d4ed8;
-
-    --status-approved: #16a34a;
-    --status-pending: #d97706;
-    --status-rejected: #dc2626;
-    --status-in-use: #0284c7;
-    --status-closed: #64748b;
-
-    --font-sans: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-  }
-
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
   body {
     margin: 0;
-    min-height: 100vh;
-    font-family: var(--font-sans);
-    background-color: #f8fafc;
-    color: #0f172a;
+    background: #f4f4ed;
+    color: #14201d;
+    font-family: 'DM Sans', sans-serif;
     -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
+  }
+  button, input, select { font: inherit; }
+  button, a, select { -webkit-tap-highlight-color: transparent; }
+}
+
+.page-transition {
+  animation: page-enter .28s cubic-bezier(.2, .8, .2, 1) both;
+}
+
+@keyframes page-enter {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .page-transition {
+    animation: none;
   }
 }
