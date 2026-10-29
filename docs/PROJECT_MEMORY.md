@@ -97,7 +97,7 @@
   - `context/03_IMPLEMENTATION_STATUS_TRACKER.md` — Marked Frontend Step 03 **DONE** (4/11 complete, ~36%).
 - **Why:** Enable researchers to describe complex lab needs in natural language, explore matching equipment envelopes across partner institutions, and verify eligibility per Spec §5.1 & §5.2.
 - **Verification:** Ran `cd frontend; npm.cmd run build` → `tsc -b && vite build` built in 364ms with **0 errors**; ran `cd backend; npm.cmd test` → **280/280 passed** across 19 suites; ran `cd UviAge; py -m uv run pytest` → **55/55 passed** across 7 suites.
-- **Commit:** Pending.
+- **Commit:** 5a1b84f
 - **Follow-ups:** Proceed to Step 04: Resource Detail & Eligibility Check (`Research/Frontend/04_RESOURCE_DETAIL_AND_ELIGIBILITY_CHECK.md`).
 
 ### CHG-022 | 2026-10-29 | React Frontend Step 02 — Authentication, Virtual OTP Verification & Judge Quick Login
