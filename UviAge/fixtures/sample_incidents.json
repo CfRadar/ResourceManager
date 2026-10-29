@@ -1,0 +1,64 @@
+[
+  {
+    "id": "inc_001",
+    "booking_id": "bk_501",
+    "reporter_id": "usr_mgr_01",
+    "type": "DAMAGE",
+    "description": "Extruder nozzle clogged and hotend heater cartridge wire frayed during evening booking session.",
+    "severity_by_reporter": "MEDIUM",
+    "status": "REPORTED",
+    "occurred_at": "2026-10-28T19:30:00Z",
+    "booking": {
+      "id": "bk_501",
+      "resource_id": "res_001",
+      "resource_name": "Prusa i3 MK3S+ 3D Printer",
+      "user_id": "usr_req_02",
+      "start_at": "2026-10-28T17:00:00Z",
+      "end_at": "2026-10-28T21:00:00Z",
+      "status": "CHECKED_OUT"
+    },
+    "condition_reports": [
+      {
+        "id": "cr_001",
+        "kind": "BEFORE",
+        "rating": 5,
+        "notes": "Machine clean, nozzle clear, bed cleaned with IPA. Pre-flight self-test passed.",
+        "accessories": [
+          {"name": "Smooth PEI sheet", "quantity": 1, "condition": "EXCELLENT"},
+          {"name": "Nozzle wrench", "quantity": 1, "condition": "GOOD"}
+        ],
+        "photo_ids": ["photo_pre_001"],
+        "geo_status": "WITHIN",
+        "submitted_at": "2026-10-28T16:55:00Z"
+      },
+      {
+        "id": "cr_002",
+        "kind": "AFTER",
+        "rating": 2,
+        "notes": "Filament jammed in PTFE tube. User reports heating error occurred at layer 42.",
+        "accessories": [
+          {"name": "Smooth PEI sheet", "quantity": 1, "condition": "SCRATCHED"},
+          {"name": "Nozzle wrench", "quantity": 1, "condition": "GOOD"}
+        ],
+        "photo_ids": ["photo_post_001", "photo_post_002"],
+        "geo_status": "WITHIN",
+        "submitted_at": "2026-10-28T20:45:00Z"
+      }
+    ],
+    "notes": [
+      {
+        "author": "usr_mgr_01",
+        "role": "MANAGER",
+        "text": "Inspected hotend block. Filament appears to be third-party carbon fiber composite not approved on default policy.",
+        "created_at": "2026-10-28T21:10:00Z"
+      },
+      {
+        "author": "usr_req_02",
+        "role": "REQUESTER",
+        "text": "Filament was standard PETG from institutional maker store. Temperature was set to 230C as per instructions.",
+        "created_at": "2026-10-28T21:40:00Z"
+      }
+    ]
+  }
+]
+

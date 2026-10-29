@@ -44,10 +44,14 @@
 |---|---|---|
 | **Backend API** | In progress | Steps 00–05 complete: modular architecture, all middleware, auth, institutions, facilities, memberships, partner linking, resources catalog, dynamic policy versioning, visibility filtering, confidential field redaction, availability computation, slot generation, blackout collision gating, availability polling, and 6-check deterministic eligibility engine. Steps 06–10 pending. |
 | **Frontend** | In progress | React + Vite + TypeScript initialized with basic App component on port 5173 |
-| **AI Service** | In progress | FastAPI initialized with `/` and `/ai/health` on port 8000; matching engine pending |
+| **AI Service** | In progress | Steps 00–02 complete: FastAPI architecture, BaseSettings, X-Internal-Key header validation, Pydantic V2 contracts, and ReadOnlyRepository with psycopg v3 and fixture fallback. 23 pytest tests passing. |
 | **Database** | Migrations ready | 7 Knex migration files (001–007) cover all spec entities; BaseRepository done; seed ready. Run `npm run migrate:latest`. |
 | **Orchestration** | Working | Root Makefile with `make install`, `make backend`, `make frontend`, `make agent`, `make clear` |
+<<<<<<< HEAD
 | **Tests** | In progress | 133 tests passing (12 smoke + 24 auth + 26 institutions + 22 facilities + 16 resources + 10 policies + 15 availability + 8 eligibility); 8 test suites all green |
+=======
+| **Tests** | In progress | 59 tests passing (36 backend + 23 UviAge AI service); integration tests pending |
+>>>>>>> 99704ad (feat(ai-service): implement Steps 00-02 architecture, Pydantic contracts, and read-only repository)
 
 **How to run:**
 - Install: `make install`
@@ -84,6 +88,7 @@
 
 ## 6. Change Log (newest first)
 
+<<<<<<< HEAD
 ### CHG-010 | 2026-10-29 | Step 05 — Availability, Blackouts, Slots & Deterministic Eligibility Implementation
 - **Requested by:** User — "IMPLEMENTATION PROMPT — STEP 05" (BKL-010).
 - **Skills used:** `project-memory-workflow`
@@ -154,6 +159,24 @@
 - **Verification:** Ran `npm.cmd test --prefix backend` → **84/84 passing across 4 test suites** (smoke, auth, institutions, facilities).
 - **Commit:** `fba2cb9`
 - **Follow-ups:** Step 04: Resources & Policies API (`Research/NodeBackend/04_RESOURCES_AND_POLICIES.md`).
+=======
+### CHG-008 | 2026-10-29 | Step 00-02 — UviAge FastAPI Architecture, Pydantic V2 Contracts & ReadOnlyRepository
+- **Requested by:** User — “Implement Step 00: FastAPI Architecture & UV Virtual Environment Setup”, followed by Step 01 Schemas and Step 02 Repository layer.
+- **Skills used:** `project-memory-workflow`
+- **What changed:**
+  - `UviAge/config.py` — Pydantic V2 `BaseSettings` loading `INTERNAL_API_KEY`, `ALLOWED_ORIGINS`, `DATABASE_URL`, `MODEL_NAME`, `HOST`, `PORT` with cached `get_settings()` and `allowed_origins_list`.
+  - `UviAge/auth.py` — FastAPI dependency `verify_internal_key` validating `X-Internal-Key` using constant-time comparison (`secrets.compare_digest`) and forwarding `X-User-Id`.
+  - `UviAge/main.py` — App entrypoint with CORS restricted to Express origin, unauthenticated `/ai/health`, and protected `/ai/*` router.
+  - `UviAge/schemas.py` — Strict Pydantic V2 models with `to_camel` alias generator (`ParseNeedRequest`, `ParseNeedResponse`, `MatchNeedRequest`, `MatchNeedResponse`, `IncidentSummaryRequest`, `IncidentSummaryResponse`, `AlternativesRequest`, `PolicySummaryResponse`, `ReindexResponse`).
+  - `UviAge/repository.py` — Read-only repository with psycopg v3 (`dict_row`), mutation detection raising `PermissionError`, and graceful offline fallback to JSON fixtures.
+  - `UviAge/fixtures/` — Sample resources and incident dossier contexts for offline test execution.
+  - `UviAge/matching/`, `UviAge/parsing/`, `UviAge/incidents/` — Stubs with `embedder.is_ready()` returning `False` without model downloads.
+  - `UviAge/tests/` — 23 unit tests across `test_health.py`, `test_matching.py`, `test_parser.py`, `test_schemas.py`, and `test_repository.py`.
+- **Why:** Establish foundational AI microservice architecture, API contracts, and read-only database query layer for resource matching and incident drafting.
+- **Verification:** `uv run pytest -v` → **23/23 passing**; live probe of `/ai/health` and `/ai/protected-test` verified on Uvicorn.
+- **Commit:** Pending.
+- **Follow-ups:** Step 03: Natural Language Need Parser (/ai/parse-need).
+>>>>>>> 99704ad (feat(ai-service): implement Steps 00-02 architecture, Pydantic contracts, and read-only repository)
 
 ### CHG-007 | 2026-10-29 | Step 02 — Authentication, RBAC & Security Middleware
 - **Requested by:** User — “Implement Step 02: Authentication, RBAC & Security Middleware”.
@@ -318,11 +341,18 @@
 - [x] BKL-001 done in CHG-005 (Step 00 foundation)
 - [x] BKL-006 done in CHG-006 (Step 01: all 7 migration files, seed, BaseRepository, knexfile)
 - [x] BKL-007 done in CHG-007 (Step 02: all auth endpoints, JWT/refresh tokens, RBAC, assertNoSelfApproval, AI client, 36 tests)
+<<<<<<< HEAD
 - [x] BKL-008 done in CHG-008 (Step 03: Institutions, Facilities, Memberships & Partners API, 84 tests)
 - [x] BKL-002 done in CHG-009 (Step 04: Resources catalog, search, and visibility filtering)
 - [x] BKL-009 done in CHG-009 (Step 04: Dynamic policy versioning and confidential redaction layer, 110 tests)
 - [x] BKL-010 done in CHG-010 (Step 05: Availability, Blackouts, Slots & Deterministic Eligibility Engine, 133 tests)
 - [ ] BKL-011 (P0) Step 06: Access Requests, State Machine, Review Queue & Appeals | Source: Research/NodeBackend/06_ACCESS_REQUESTS_AND_STATE_MACHINE.md
+=======
+- [x] BKL-010 done in CHG-008 (UviAge Steps 00–02: FastAPI setup, Pydantic V2 contracts, ReadOnlyRepository, 23 tests)
+- [ ] BKL-002 (P0) Implement Core Resource endpoints in Express backend | Depends on: CHG-007 | Source: Research/01_BACKEND_API_SPEC.md
+- [ ] BKL-008 (P0) Step 03: Institutions, Facilities & Memberships API | Source: Research/NodeBackend/03_INSTITUTIONS_AND_FACILITIES.md
+- [ ] BKL-009 (P0) Step 04: Resources & Policies API | Source: Research/NodeBackend/04_RESOURCES_AND_POLICIES.md
+>>>>>>> 99704ad (feat(ai-service): implement Steps 00-02 architecture, Pydantic contracts, and read-only repository)
 - [ ] BKL-003 (P0) Implement UviAge `/ai/parse-need` and `/ai/match-need` endpoints | Source: Research/01_BACKEND_API_SPEC.md
 - [ ] BKL-004 (P1) Implement React frontend navigation, layout, and resource catalog pages | Source: Research/02_FRONTEND_DESIGN_SPEC.md
 - [ ] BKL-005 (P1) Implement end-to-end booking reservation and approval workflow | Source: Research/01_BACKEND_API_SPEC.md

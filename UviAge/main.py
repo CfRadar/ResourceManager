@@ -1,29 +1,34 @@
-import os
-from fastapi import FastAPI, Header, HTTPException, status
-from fastapi.middleware.cors import CORSMiddleware
-from dotenv import load_dotenv
+"""UviAge FastAPI application entrypoint."""
 
-load_dotenv()
+from fastapi import APIRouter, Depends, FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+
+from auth import verify_internal_key
+from config import get_settings
+from matching import embedder
+import repository
+
+settings = get_settings()
 
 app = FastAPI(
-    title="UviAge AI Service",
-    description="Python AI backend service for Resource Manager",
+    title="UviAge",
+    description="Python AI Service for Resource Manager",
     version="0.1.0",
 )
 
+# CORS configuration restricted strictly to allowed origins (Express backend)
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=settings.allowed_origins_list,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-INTERNAL_KEY = os.getenv("INTERNAL_API_KEY", "dev-secret-internal-key")
-
 
 @app.get("/")
 def root():
+    """Root metadata endpoint."""
     return {
         "ok": True,
         "service": "UviAge",
@@ -33,18 +38,39 @@ def root():
 
 
 @app.get("/ai/health")
-def health():
+async def health_check():
+    """Unauthenticated healthcheck endpoint for container orchestration and status probes."""
     return {
         "ok": True,
         "service": "UviAge",
         "status": "healthy",
-        "model_status": "ready",
+        "model_loaded": embedder.is_ready(),
+        "database": repository.ping(),
     }
 
+
+# Router for all operational AI endpoints protected by X-Internal-Key header
+ai_router = APIRouter(prefix="/ai", dependencies=[Depends(verify_internal_key)])
+
+
+@ai_router.get("/protected-test")
+async def protected_test():
+    """Protected test route to verify internal header authentication."""
+    return {
+        "ok": True,
+        "service": "UviAge",
+        "message": "Access granted to protected AI endpoint",
+    }
+
+
+app.include_router(ai_router)
 
 if __name__ == "__main__":
     import uvicorn
 
-    port = int(os.getenv("PORT", "8000"))
-    host = os.getenv("HOST", "0.0.0.0")
-    uvicorn.run("main:app", host=host, port=port, reload=True)
+    uvicorn.run(
+        "main:app",
+        host=settings.HOST,
+        port=settings.PORT,
+        reload=True,
+    )

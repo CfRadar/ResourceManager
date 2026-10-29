@@ -1,0 +1,128 @@
+[
+  {
+    "id": "res_001",
+    "name": "Prusa i3 MK3S+ 3D Printer",
+    "category": "fabrication",
+    "description": "High-precision FDM desktop 3D printer with heated bed and auto-leveling probe.",
+    "specs": {
+      "technology": "FDM",
+      "buildVolume": "250x210x210mm",
+      "layerResolution": "0.05-0.35mm",
+      "nozzleDiameter": "0.4mm",
+      "maxExtruderTemp": "300C"
+    },
+    "capabilities": ["FDM", "PLA", "PETG", "ABS", "rapid-prototyping", "3D-printing"],
+    "visibility": "PUBLIC",
+    "risk_level": "LOW",
+    "status": "ACTIVE",
+    "facility_id": "fac_001",
+    "facility_name": "Digital Fabrication Lab",
+    "facility_city": "Cambridge",
+    "timezone": "UTC",
+    "institution_id": "inst_001",
+    "institution_name": "Institute of Applied Technology",
+    "policy_data": {
+      "accessModes": ["IN_PERSON", "SEND_SAMPLE"],
+      "maxSingleBookingHours": 8,
+      "maxActiveBookings": 2,
+      "advanceBookingDays": 14,
+      "requiredTrainings": ["train_3d_basics"],
+      "requiresStaffSupervision": false,
+      "fairUseWeeklyCapHours": 20
+    }
+  },
+  {
+    "id": "res_002",
+    "name": "Epilog Fusion Pro 48 CO2 Laser Cutter",
+    "category": "fabrication",
+    "description": "120W CO2 laser cutting and engraving machine for acrylic, wood, fabric, and sheet materials.",
+    "specs": {
+      "laserPower": "120W",
+      "bedSize": "1219x914mm",
+      "maxMaterialThickness": "12mm",
+      "vectorAccuracy": "0.01mm"
+    },
+    "capabilities": ["laser-cutting", "engraving", "acrylic", "wood", "textiles", "rapid-prototyping"],
+    "visibility": "PUBLIC",
+    "risk_level": "MEDIUM",
+    "status": "ACTIVE",
+    "facility_id": "fac_001",
+    "facility_name": "Digital Fabrication Lab",
+    "facility_city": "Cambridge",
+    "timezone": "UTC",
+    "institution_id": "inst_001",
+    "institution_name": "Institute of Applied Technology",
+    "policy_data": {
+      "accessModes": ["IN_PERSON"],
+      "maxSingleBookingHours": 3,
+      "maxActiveBookings": 1,
+      "advanceBookingDays": 7,
+      "requiredTrainings": ["train_laser_safety"],
+      "requiresStaffSupervision": true,
+      "fairUseWeeklyCapHours": 6
+    }
+  },
+  {
+    "id": "res_003",
+    "name": "Keysight DSOX1204G Digital Storage Oscilloscope",
+    "category": "test-equipment",
+    "description": "4-channel 200 MHz digital oscilloscope with built-in 20 MHz WaveGen and protocol decoder.",
+    "specs": {
+      "bandwidth": "200MHz",
+      "channels": 4,
+      "sampleRate": "2GSa/s",
+      "waveformMemory": "2Mpts"
+    },
+    "capabilities": ["oscilloscope", "waveform-analysis", "signal-integrity", "I2C-decoding", "SPI-decoding", "electronics"],
+    "visibility": "PUBLIC",
+    "risk_level": "LOW",
+    "status": "ACTIVE",
+    "facility_id": "fac_002",
+    "facility_name": "Microelectronics & Sensor Lab",
+    "facility_city": "Boston",
+    "timezone": "UTC",
+    "institution_id": "inst_002",
+    "institution_name": "Metropolitan Innovation University",
+    "policy_data": {
+      "accessModes": ["IN_PERSON", "STAFF_OPERATED"],
+      "maxSingleBookingHours": 6,
+      "maxActiveBookings": 3,
+      "advanceBookingDays": 14,
+      "requiredTrainings": [],
+      "requiresStaffSupervision": false,
+      "fairUseWeeklyCapHours": 18
+    }
+  },
+  {
+    "id": "res_004",
+    "name": "Haas VF-2 3-Axis CNC Vertical Machining Center",
+    "category": "machining",
+    "description": "Rugged 3-axis CNC vertical mill for precision metal machining, prototyping, and tooling.",
+    "specs": {
+      "travels": "762x406x508mm",
+      "spindleSpeed": "10000RPM",
+      "toolCapacity": 20,
+      "spindlePower": "22.4kW"
+    },
+    "capabilities": ["CNC-milling", "metalworking", "aluminum", "steel", "subtractive-manufacturing", "3-axis"],
+    "visibility": "NETWORK",
+    "risk_level": "HIGH",
+    "status": "ACTIVE",
+    "facility_id": "fac_003",
+    "facility_name": "Advanced Precision Machining Center",
+    "facility_city": "Somerville",
+    "timezone": "UTC",
+    "institution_id": "inst_001",
+    "institution_name": "Institute of Applied Technology",
+    "policy_data": {
+      "accessModes": ["STAFF_OPERATED", "IN_PERSON"],
+      "maxSingleBookingHours": 4,
+      "maxActiveBookings": 1,
+      "advanceBookingDays": 21,
+      "requiredTrainings": ["train_cnc_operator_level2"],
+      "requiresStaffSupervision": true,
+      "fairUseWeeklyCapHours": 8
+    }
+  }
+]
+
