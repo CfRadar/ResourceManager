@@ -59,7 +59,17 @@ function validate(schemas = {}) {
         }
       } else {
         // Write back coerced/stripped data so controllers get typed values.
-        req[location] = result.data;
+        if (location === 'query') {
+          // Express 5 defines req.query as a getter. Define property to allow override.
+          Object.defineProperty(req, 'query', {
+            value:        result.data,
+            writable:     true,
+            enumerable:   true,
+            configurable: true,
+          });
+        } else {
+          req[location] = result.data;
+        }
       }
     }
 

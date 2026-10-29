@@ -4,22 +4,23 @@ Institution profiles, membership requests, and partner links (Spec §4.3).
 
 **Implemented in:** Step 03 — Institutions, Facilities & Memberships
 
-## Planned endpoints
+## Implemented Endpoints
 | Method | Path | Auth | Notes |
 |---|---|---|---|
-| GET  | `/api/v1/institutions` | Any | Public list |
+| GET  | `/api/v1/institutions` | Any | Public verified list with pagination and search |
 | GET  | `/api/v1/institutions/:id` | Any | Detail + public facilities |
-| POST | `/api/v1/institutions` | Platform admin | Demo seeding only |
+| POST | `/api/v1/institutions` | Platform admin | Create institution |
 | PATCH | `/api/v1/institutions/:id` | Admin of institution | Update profile |
-| POST | `/api/v1/institutions/:id/membership-requests` | Requester | Join request |
-| GET  | `/api/v1/institutions/:id/membership-requests` | Admin | Pending requests |
-| POST | `/api/v1/institutions/:id/membership-requests/:reqId/decision` | Admin | Approve/reject |
-| GET  | `/api/v1/institutions/:id/members` | Admin | Member list |
-| PATCH | `/api/v1/institutions/:id/members/:userId` | Admin | Role / suspend |
-| POST | `/api/v1/institutions/:id/partners` | Admin | Link partner |
+| POST | `/api/v1/institutions/:id/membership-requests` | Requester | Join request (supports proof) |
+| GET  | `/api/v1/institutions/:id/membership-requests` | Admin | Pending requests list with user info |
+| POST | `/api/v1/institutions/:id/membership-requests/:reqId/decision` | Admin | Approve/reject with strict no-self-approval |
+| POST | `/api/v1/institutions/:id/partners` | Admin | Bidirectional partner link |
+| GET  | `/api/v1/institutions/:id/partners` | Any | List partner institutions |
+| POST | `/api/v1/institutions/:id/facilities` | Admin / Owner | Create facility on institution |
 
-## Files (to be created in Step 03)
+## Files
 - `institutions.router.js`
 - `institutions.controller.js`
 - `institutions.service.js`
+- `institutions.repository.js`
 - `institutions.schema.js`

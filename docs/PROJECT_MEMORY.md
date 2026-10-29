@@ -9,7 +9,7 @@
 - **Goal:** Unified platform enabling cross-institutional resource sharing, lab equipment bookings, and AI-driven capability matching.
 - **Stack:**
   - **Frontend:** React 19 + TypeScript + Vite
-  - **Backend API:** Node.js + Express
+  - **Backend API:** Node.js + Express 5
   - **AI Service:** Python 3.12 + FastAPI + Uvicorn (strictly managed via `uv`)
   - **Database:** PostgreSQL (recommended, schema DB-agnostic, pending final driver decision)
 - **Key docs:**
@@ -42,12 +42,12 @@
 
 | Area | Status | Notes |
 |---|---|---|
-| **Backend API** | In progress | Steps 00–02 complete: modular architecture, all middleware, auth endpoints (register, verify-otp, login, refresh, logout, me), JWT/refresh tokens, RBAC. Steps 03–10 pending. |
+| **Backend API** | In progress | Steps 00–03 complete: modular architecture, all middleware, auth (JWT/refresh, RBAC, no-self-approval), institutions domain, facilities domain, membership lifecycle, working hours, and partner linking. Steps 04–10 pending. |
 | **Frontend** | In progress | React + Vite + TypeScript initialized with basic App component on port 5173 |
 | **AI Service** | In progress | FastAPI initialized with `/` and `/ai/health` on port 8000; matching engine pending |
 | **Database** | Migrations ready | 7 Knex migration files (001–007) cover all spec entities; BaseRepository done; seed ready. Run `npm run migrate:latest`. |
 | **Orchestration** | Working | Root Makefile with `make install`, `make backend`, `make frontend`, `make agent`, `make clear` |
-| **Tests** | In progress | 36 tests passing (12 smoke + 24 auth); integration tests pending |
+| **Tests** | In progress | 84 tests passing (12 smoke + 24 auth + 26 institutions + 22 facilities); 4 test suites all green |
 
 **How to run:**
 - Install: `make install`
@@ -56,7 +56,7 @@
 - Dev backend with hot-reload: `cd backend && npm run dev`
 
 **How to verify:**
-- Backend smoke: `cd backend && npm test` → 12 tests pass
+- Backend tests: `npm.cmd test --prefix backend` → 84 tests pass across 4 suites
 - Backend health: `curl http://localhost:5000/health` → `{"ok":true,"data":{"status":"healthy"}}`
 - Backend API health: `curl http://localhost:5000/api/v1/health` → same shape
 - AI Service: `curl http://localhost:8000/ai/health` → `{"ok":true,"status":"healthy"}`
@@ -84,6 +84,29 @@
 
 ## 6. Change Log (newest first)
 
+### CHG-008 | 2026-10-29 | Step 03 — Institutions, Facilities & Memberships Implementation
+- **Requested by:** User — "Implement Step 03: Institutions, Facilities & Memberships completely in the actual codebase."
+- **Skills used:** `project-memory-workflow`
+- **What changed:**
+  - `backend/src/modules/institutions/institutions.schema.js` — Zod schemas for listing/filtering institutions, registration (platform admin), profile updates, membership requests, decision review (role required on APPROVE), partner linking, and ID params.
+  - `backend/src/modules/institutions/institutions.repository.js` — `InstitutionRepository`, `InstitutionPartnerRepository`, `MembershipRequestRepository`, `InstitutionMembershipRepository` with public field sanitizers, case-insensitive duplicate prevention, symmetric partner pair normalization (`a < b`), user join queries, and atomic status updates.
+  - `backend/src/modules/institutions/institutions.service.js` — Core domain logic: verified institution listing with pagination, detail retrieval with public facilities, platform-admin registration, profile updates, membership request creation (checks existing active membership and pending requests), admin decision review with strict `assertNoSelfApproval` in an atomic Knex transaction, and symmetric partner institution linking.
+  - `backend/src/modules/institutions/institutions.controller.js` — HTTP handlers formatting output to the standard `{ ok, data, meta }` envelope.
+  - `backend/src/modules/institutions/institutions.router.js` — Express routes with validation, RBAC (`requireRole`, `requireInstitutionRole`), and nested facility creation.
+  - `backend/src/modules/facilities/facilities.schema.js` — Zod schemas for coordinate bounds (-90..90, -180..180), IANA timezone validation (`Intl.DateTimeFormat`), geofence radius (>0, default 150), working hours weekday schedules in strict `HH:mm` format with `null` for closed days.
+  - `backend/src/modules/facilities/facilities.repository.js` — `FacilityRepository` with public sanitizer, filters (institutionId, city join, text search q), and pagination.
+  - `backend/src/modules/facilities/facilities.service.js` — Facility CRUD with RBAC authorization check (platform admin or institution owner/admin) and timezone-aware `isWithinWorkingHours(facility, startAt, endAt)` helper supporting standard weekday schedules, intraday intervals, and overnight hours crossing midnight.
+  - `backend/src/modules/facilities/facilities.controller.js` — HTTP handlers for facilities.
+  - `backend/src/modules/facilities/facilities.router.js` — Express routes for `/facilities`.
+  - `backend/src/middleware/validate.js` — Fixed Express 5 `req.query` getter conflict via `Object.defineProperty` so coerced/stripped query objects are written back safely.
+  - `backend/src/app.js` — Mounted `/institutions` and `/facilities` routers under `/api/v1`.
+  - `backend/tests/institutions.test.js` — 26 unit and integration tests covering verified listings, facilities embedding, platform admin registration, duplicate name rejection, profile updates, membership requests, conflict prevention, pending request listing, decision reviews with strict `assertNoSelfApproval` (403), transactional upsert of memberships, and symmetric partner linking.
+  - `backend/tests/facilities.test.js` — 22 unit and integration tests covering timezone-aware working hours helper, coordinate validation, geofence validation, IANA timezone validation, public list filtering, and facility updates.
+- **Why:** Provide full Step 03 implementation enabling multi-institution collaboration, facility operations, membership applications, and partner network sharing.
+- **Verification:** Ran `npm.cmd test --prefix backend` → **84/84 passing across 4 test suites** (smoke, auth, institutions, facilities).
+- **Commit:** Pending.
+- **Follow-ups:** Step 04: Resources & Policies API (`Research/NodeBackend/04_RESOURCES_AND_POLICIES.md`).
+
 ### CHG-007 | 2026-10-29 | Step 02 — Authentication, RBAC & Security Middleware
 - **Requested by:** User — “Implement Step 02: Authentication, RBAC & Security Middleware”.
 - **Skills used:** `project-memory-workflow`
@@ -106,7 +129,6 @@
 - **Commit:** Pending.
 - **Follow-ups:** Step 03 (Institutions & Facilities API), Step 04 (Resources & Policies).
 
-
 ### CHG-006 | 2026-10-28 | Step 01 — Database Models, Schema & Migrations
 - **Requested by:** User — “do task 1” (BKL-006).
 - **Skills used:** `project-memory-workflow`
@@ -126,7 +148,6 @@
 - **Verification:** `npm test` → 12/12 passing. `node -e "require('./knexfile')"` → loads cleanly. Migrations require a live PostgreSQL DB to run (`npm run migrate:latest`).
 - **Commit:** `9cdbfff` `feat(backend): implement Step 01 — 7 Knex migrations for all entities, GIST booking constraint, BaseRepository, and idempotent demo seed`
 - **Follow-ups:** Step 02 (Auth/JWT endpoints), run `npm run migrate:latest` against dev DB.
-
 
 ### CHG-005 | 2026-10-28 | Step 00 — NodeBackend Architecture, Project Structure & Setup
 - **Requested by:** User — implement Step 00 per `Research/NodeBackend/00_ARCHITECTURE_AND_SETUP.md` and `Research/01_BACKEND_API_SPEC.md`.
@@ -155,7 +176,6 @@
 - **Verification:** `npm test` → 12/12 passing. App imports cleanly in test mode. Env validation correctly rejects missing JWT secrets in production mode.
 - **Commit:** `0cb6143` `feat(backend): implement Step 00 modular Express architecture, middleware, env/db config, and 12 smoke tests`
 - **Follow-ups:** Step 01 (Database Models & Migrations), Step 02 (Auth & RBAC endpoints).
-
 
 ### CHG-004 | 2026-10-28 | Created fix-errors Agent Skill and Root Documentation
 - **Requested by:** User request to create an agent skill triggered by "fix errors" to probe terminals/services, consult memory, draft an approval-gated plan, fix errors without regressions, and document the workflow in README.md.
@@ -221,6 +241,13 @@
 
 ## 7. Mistakes and Lessons (newest first)
 
+### MST-002 | 2026-10-29 | Express 5 req.query getter in request validation middleware
+- **What went wrong:** In Express 5 (`^5.3.0`), `req.query` is defined on the request prototype as a getter-only property. Attempting `req.query = result.data` in the Zod validation middleware threw `TypeError: Cannot set property query of [object Object] which has only a getter`.
+- **Root cause:** Express 5 modernized request property handling and does not provide a default setter on `req.query`.
+- **Fix:** Updated `backend/src/middleware/validate.js` to redefine the property on `req` via `Object.defineProperty(req, 'query', { value: result.data, writable: true, enumerable: true, configurable: true })`.
+- **Rule going forward:** In Express 5 middleware, never assign directly to `req.query`; use `Object.defineProperty` or mutate keys.
+- **Related:** CHG-008
+
 ### MST-001 | 2026-10-28 | Make execution of PowerShell variables and Windows npm resolution
 - **What went wrong:**
   1. `make clear` failed because GNU Make / sh expanded `$p` as an empty string before PowerShell received it.
@@ -243,8 +270,8 @@
 - [x] BKL-001 done in CHG-005 (Step 00 foundation)
 - [x] BKL-006 done in CHG-006 (Step 01: all 7 migration files, seed, BaseRepository, knexfile)
 - [x] BKL-007 done in CHG-007 (Step 02: all auth endpoints, JWT/refresh tokens, RBAC, assertNoSelfApproval, AI client, 36 tests)
-- [ ] BKL-002 (P0) Implement Core Resource endpoints in Express backend | Depends on: CHG-007 | Source: Research/01_BACKEND_API_SPEC.md
-- [ ] BKL-008 (P0) Step 03: Institutions, Facilities & Memberships API | Source: Research/NodeBackend/03_INSTITUTIONS_AND_FACILITIES.md
+- [x] BKL-008 done in CHG-008 (Step 03: Institutions, Facilities, Memberships & Partners API, 84 tests)
+- [ ] BKL-002 (P0) Implement Core Resource endpoints in Express backend | Depends on: CHG-007, CHG-008 | Source: Research/01_BACKEND_API_SPEC.md
 - [ ] BKL-009 (P0) Step 04: Resources & Policies API | Source: Research/NodeBackend/04_RESOURCES_AND_POLICIES.md
 - [ ] BKL-003 (P0) Implement UviAge `/ai/parse-need` and `/ai/match-need` endpoints | Source: Research/01_BACKEND_API_SPEC.md
 - [ ] BKL-004 (P1) Implement React frontend navigation, layout, and resource catalog pages | Source: Research/02_FRONTEND_DESIGN_SPEC.md

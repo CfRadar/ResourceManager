@@ -116,8 +116,14 @@ function buildApiRouter() {
   // authLimiter applied here (general auth limit); loginLimiter applied per-route in authRouter.
   router.use('/auth', authLimiter, authRouter);
 
+  // ── Institutions & Facilities modules (Step 03) ───────────────────────────
+  const institutionsRouter = require('./modules/institutions/institutions.router');
+  const facilitiesRouter   = require('./modules/facilities/facilities.router');
+  router.use('/institutions', institutionsRouter);
+  router.use('/facilities',   facilitiesRouter);
+
   // ── Module routers are mounted here in later steps ──────────────────────────
-  // Example (Step 03+):
+  // Example (Step 04+):
   //   const resourcesRouter = require('./modules/resources/resources.router');
   //   router.use('/resources', resourcesRouter);
   // ─────────────────────────────────────────────────────────────────────────────
