@@ -123,7 +123,7 @@
   - `context/03_IMPLEMENTATION_STATUS_TRACKER.md` — Marked Step 09 **DONE** (241 backend tests passing across 16 suites).
 - **Why:** Provide complete incident investigation, impartial dispute rulings, fair-use token ledger, simulated billing/invoicing, and production-grade spreadsheet and PDF export capabilities per Spec §4.16, §4.17, §4.18, and §4.22.
 - **Verification:** Ran `cd backend; npm.cmd test` → **241/241 tests passing across 16 test suites**; ran `cd frontend; npm.cmd run build` → **0 errors**.
-- **Commit:** Pending.
+- **Commit:** `8ce6ef1`
 - **Follow-ups:** Step 10: Background Jobs and Audit Hash Chain (`Research/NodeBackend/10_BACKGROUND_JOBS_AND_AUDIT_HASH_CHAIN.md`).
 
 ### CHG-014 | 2026-10-29 | Step 08 — Staff-Operated Services, Missing-Resource Needs & Referrals
