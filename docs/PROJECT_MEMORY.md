@@ -100,7 +100,7 @@
   - `context/03_IMPLEMENTATION_STATUS_TRACKER.md` — Marked Frontend Step 07 **DONE** (8/11 complete, ~73%).
 - **Why:** Provide researchers with accountable hardware handovers, physical damage prevention, cleanroom accessories auditing, and legal digital attestation per Spec §5.10 & §5.11.
 - **Verification:** Ran `cd frontend; npm.cmd run build` → `tsc -b && vite build` built in 577ms with **0 errors**; ran `cd backend; npm.cmd test` → **280/280 passed** across 19 suites; ran `cd UviAge; py -m uv run pytest` → **55/55 passed** across 7 suites.
-- **Commit:** pending
+- **Commit:** 268ca57
 - **Follow-ups:** Proceed to Step 08: Manager Dashboard & Review Queue (`Research/Frontend/08_MANAGER_DASHBOARD_AND_REVIEW_QUEUE.md`).
 
 ### CHG-026 | 2026-10-30 | React Frontend Step 06 — Requester Dashboard, Request Details & Booking Passes
