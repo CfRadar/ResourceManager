@@ -13,6 +13,8 @@ import { RegisterPage } from '../features/auth/RegisterPage';
 import { VerifyOtpPage } from '../features/auth/VerifyOtpPage';
 import { MyDashboardPage } from '../features/requester/MyDashboardPage';
 import { MyBookingsPage } from '../features/requester/MyBookingsPage';
+import { RequestDetailPage } from '../features/requester/RequestDetailPage';
+import { BookingDetailPage } from '../features/requester/BookingDetailPage';
 import { ReviewQueuePage } from '../features/manage/ReviewQueuePage';
 import { ManagerDashboardPage } from '../features/manage/ManagerDashboardPage';
 import { CoordinatorDeskPage } from '../features/coordinate/CoordinatorDeskPage';
@@ -61,6 +63,22 @@ export const router = createBrowserRouter([
             <RoleGuard allowedRoles={['REQUESTER']}>
               <MyBookingsPage />
             </RoleGuard>
+          </AuthGuard>
+        ),
+      },
+      {
+        path: 'requests/:id',
+        element: (
+          <AuthGuard>
+            <RequestDetailPage />
+          </AuthGuard>
+        ),
+      },
+      {
+        path: 'bookings/:id',
+        element: (
+          <AuthGuard>
+            <BookingDetailPage />
           </AuthGuard>
         ),
       },

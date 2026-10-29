@@ -1,6 +1,6 @@
 # Live Implementation Status Tracker
 
-> **LAST UPDATED:** 2026-10-30 (Frontend Step 05 Complete — Dynamic Request Wizard Done)
+> **LAST UPDATED:** 2026-10-30 (Frontend Step 06 Complete — Requester Dashboard & Bookings Done)
 > **RULE:** Any agent completing a blueprint step MUST update this tracker alongside `docs/PROJECT_MEMORY.md`.
 
 ---
@@ -11,7 +11,7 @@
 | :--- | :--- | :---: | :---: | :---: | :---: | :---: |
 | **Node.js Express Backend** | `Research/NodeBackend/` | **11 / 11** | 0 | **0** | **280 passed** (19 suites) | **100%** |
 | **Python AI Service (UviAge)** | `Research/PythonBackend/` | **10 / 10** | **0** | **0** | **55 passed** (7 suites) | **100%** |
-| **React Frontend** | `Research/Frontend/` | **6 / 11** | 0 | **5** | Build verified (0 errors) | **~55%** |
+| **React Frontend** | `Research/Frontend/` | **7 / 11** | 0 | **4** | Build verified (0 errors) | **~64%** |
 
 ---
 
@@ -64,7 +64,7 @@
 | **03** | `03_LANDING_AND_AI_DISCOVERY.md` | **DONE** | LandingPage with NLP search & 3-step timeline, DiscoverPage with filter sidebar & parsed keyword chips, ResourceCard with match reasoning popover & eligibility preview, fallback handling | Proceed to Step 04 |
 | **04** | `04_RESOURCE_DETAIL_AND_ELIGIBILITY_CHECK.md` | **DONE** | ResourceDetailPage with risk tag, access mode selector, tabbed switcher, EligibilityChecklist (6 checks), PolicySummaryCard, ConfidentialInstructionsCard | Proceed to Step 05 |
 | **05** | `05_DYNAMIC_REQUEST_WIZARD.md` | **DONE** | RequestWizardPage (5-step stepper), SlotPicker (7-day, 3 intervals, collision alt suggestions), FairUseMeter, SignaturePad, sessionStorage draft persistence | Proceed to Step 06 |
-| **06** | `06_REQUESTER_DASHBOARD_AND_BOOKINGS.md` | ⏳ **PENDING** | Not started | Build Requester Dashboard & countdowns |
+| **06** | `06_REQUESTER_DASHBOARD_AND_BOOKINGS.md` | **DONE** | MyDashboardPage with pinned ActionRequiredBanner, BookingDetailPage with useCountdown & unlocked PINs, RequestDetailPage with reviewer Q&A & appeal modal | Proceed to Step 07 |
 | **07** | `07_CHECKIN_CHECKOUT_AND_SIGNATURE_PAD.md` | ⏳ **PENDING** | Not started | Build Condition diffs & SignaturePad |
 | **08** | `08_MANAGER_DASHBOARD_AND_REVIEW_QUEUE.md` | ⏳ **PENDING** | Not started | Build Manager review queue desk |
 | **09** | `09_SERVICES_NEEDS_AND_COORDINATION.md` | ⏳ **PENDING** | Not started | Build Missing-resource & referral screens |
@@ -77,5 +77,5 @@
 ## 5. Immediate Next Steps / Implementation Roadmap
 
 The next immediate implementation choices are:
-1. **React Frontend Step 06 (`06_REQUESTER_DASHBOARD_AND_BOOKINGS.md`):** Build Requester Dashboard (`/dashboard`), active booking cards, real-time status countdowns, waitlist queue position trackers, and cancel/modify modal dialogs.
-2. **React Frontend Step 07 (`07_CHECKIN_CHECKOUT_AND_SIGNATURE_PAD.md`):** Build QR Check-In / Check-Out screen, condition inspection diffing, and physical handover signature capture.
+1. **React Frontend Step 07 (`07_CHECKIN_CHECKOUT_AND_SIGNATURE_PAD.md`):** Build QR Check-In / Check-Out screen, condition inspection diffing, and physical handover signature capture.
+2. **React Frontend Step 08 (`08_MANAGER_DASHBOARD_AND_REVIEW_QUEUE.md`):** Build Manager Dashboard, review queue desk, and state machine decision transitions.

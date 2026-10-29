@@ -43,7 +43,7 @@
 | Area | Status | Notes |
 |---|---|---|
 | **Backend API** | Complete (100%) | Steps 00–10 complete: modular architecture, all middleware, auth, institutions, facilities, memberships, partner linking, resources catalog, dynamic policy versioning, visibility filtering, confidential field redaction, availability computation, slot generation, blackout collision gating, availability polling, 6-check deterministic eligibility engine, access request lifecycle, central state machine transition engine, reviewer queue, FIFO waitlisting, concurrency-safe bookings & QR check-in, staff-operated service requests, missing-resource intake, candidate discovery, cross-institutional referrals, incident reporting & impartial rulings, fair-use token ledger, simulated billing/invoicing, Excel/PDF/CSV exports, 7 scheduled background cron jobs, scheduler telemetry, SHA-256 tamper-evident hash chain verification, admin controls, in-app notifications, role dashboards, and AI proxy with fallback. |
-| **Frontend** | In progress | React 19 + Vite + TypeScript. Steps 00–05 complete: React Router 7, TanStack Query, Axios JWT interceptors, Role switcher, Auth/Toast contexts, Auth/Role guards, Tailwind v4 design tokens, shared components, LoginPage with sample credential hints, RegisterPage with OTP routing, VerifyOtpPage with auto-fill demo banner & 6-digit inputs, JudgeToolbar with 1-click persona switching, LandingPage with NLP search & 3-step timeline, DiscoverPage with filter sidebar & parsed keyword chips, ResourceCard with match reasons popover & eligibility preview, ResourceDetailPage with risk tag, access mode selector, tabbed switcher, EligibilityChecklist (6 checks), PolicySummaryCard, ConfidentialInstructionsCard, and RequestWizardPage (5-step wizard, interactive 7-day SlotPicker with collision recovery, FairUseMeter, and HTML5 canvas SignaturePad). Builds cleanly with 0 errors. |
+| **Frontend** | In progress | React 19 + Vite + TypeScript. Steps 00–06 complete: React Router 7, TanStack Query, Axios JWT interceptors, Role switcher, Auth/Toast contexts, Auth/Role guards, Tailwind v4 design tokens, shared components, LoginPage with sample credential hints, RegisterPage with OTP routing, VerifyOtpPage with auto-fill demo banner & 6-digit inputs, JudgeToolbar with 1-click persona switching, LandingPage with NLP search & 3-step timeline, DiscoverPage with filter sidebar & parsed keyword chips, ResourceCard with match reasons popover & eligibility preview, ResourceDetailPage with risk tag, access mode selector, tabbed switcher, EligibilityChecklist (6 checks), PolicySummaryCard, ConfidentialInstructionsCard, RequestWizardPage (5-step wizard, interactive 7-day SlotPicker with collision recovery, FairUseMeter, SignaturePad), and Requester Dashboard & Bookings (MyDashboardPage with ActionRequiredBanner, BookingDetailPage with useCountdown & unlocked physical credentials, RequestDetailPage with reviewer Q&A and appeal modal dialog). Builds cleanly with 0 errors. |
 | **AI Service** | Complete (100%) | Steps 00–09 complete: FastAPI architecture, BaseSettings, X-Internal-Key validation, Pydantic V2 contracts, ReadOnlyRepository with psycopg v3 and fixtures, NeedParser (/ai/parse-need), VectorIndexer (all-MiniLM-L6-v2), BM25Okapi deterministic fallback matcher (/ai/match-need), index rebuild (/ai/reindex) with ISO timestamps, objective incident summary drafting (/ai/incident-summary), Express circuit breaker & anti-hallucination sanitization, resource update webhooks, latency benchmarks, and concurrency stress testing. 55 pytest tests passing. |
 | **Database** | Migrations ready | 7 Knex migration files (001–007) cover all spec entities; BaseRepository done; seed ready. Run `npm run migrate:latest`. |
 | **Orchestration** | Working | Root Makefile with `make install`, `make backend`, `make frontend`, `make agent`, `make clear` |
@@ -83,6 +83,26 @@
 ---
 
 ## 6. Change Log (newest first)
+
+### CHG-026 | 2026-10-30 | React Frontend Step 06 — Requester Dashboard, Request Details & Booking Passes
+- **Requested by:** User (BKL-004).
+- **Skills used:** `project-memory-workflow`
+- **What changed:**
+  - `frontend/src/hooks/useCountdown.ts` — Real-time countdown hook calculating session countdowns (`Starts in X`, `Active`, `Overdue`) with 1-second interval cleanup.
+  - `frontend/src/api/bookings.api.ts` — API client and interfaces for `fetchMyBookings`, `fetchBookingById`, `cancelBooking`, and `rescheduleBooking`.
+  - `frontend/src/api/accessRequests.api.ts` — Added `fetchMyRequests`, `fetchRequestById`, `respondToReviewer`, `appealRequest`, and `cancelRequest`.
+  - `frontend/src/components/requester/ActionRequiredBanner.tsx` — Pinned high-priority action alerts for reviewer clarifications, check-in arrivals, and return deadlines.
+  - `frontend/src/components/requester/BookingCard.tsx` — Equipment booking card with dynamic countdown timer badge, token costs, and check-in / detail links.
+  - `frontend/src/components/requester/StatusTimeline.tsx` — Vertical audit event trail with actor badges, timestamps, and SHA-256 integrity indicator.
+  - `frontend/src/features/requester/MyDashboardPage.tsx` — Personal requester dashboard with upcoming sessions, pending review queues, waitlist indicators, fair-use meter, and quick-action shortcuts.
+  - `frontend/src/features/requester/RequestDetailPage.tsx` — Request inspection view with "What Happens Next" explanation box, reviewer Q&A chat with inline reply form, decision notice with `[Appeal this decision]` modal dialog, and status timeline.
+  - `frontend/src/features/requester/BookingDetailPage.tsx` — Booking pass hub with live countdown ticker, unlocked physical credentials (door PIN, lockbox PIN, Wi-Fi SSID, lab instructions), check-in activation, reschedule modal, cancel modal with penalty notice, and side-by-side condition inspection reports (`BEFORE` vs `AFTER`).
+  - `frontend/src/app/router.tsx` — Mounted `/requests/:id` and `/bookings/:id` protected by `AuthGuard`.
+  - `context/03_IMPLEMENTATION_STATUS_TRACKER.md` — Marked Frontend Step 06 **DONE** (7/11 complete, ~64%).
+- **Why:** Enable researchers to track requests in real time, respond to reviewer questions, file appeals, access unlocked physical PINs, and manage reservations per Spec §5.7, §5.8 & §5.9.
+- **Verification:** Ran `cd frontend; npm.cmd run build` → `tsc -b && vite build` built in 522ms with **0 errors**; ran `cd backend; npm.cmd test` → **280/280 passed** across 19 suites; ran `cd UviAge; py -m uv run pytest` → **55/55 passed** across 7 suites.
+- **Commit:** pending
+- **Follow-ups:** Proceed to Step 07: Check-In/Check-Out & Signature Pad (`Research/Frontend/07_CHECKIN_CHECKOUT_AND_SIGNATURE_PAD.md`).
 
 ### CHG-025 | 2026-10-30 | React Frontend Step 05 — Dynamic Policy-Driven Access Request Wizard
 - **Requested by:** User (BKL-004).
