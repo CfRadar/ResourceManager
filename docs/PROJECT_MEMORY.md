@@ -97,7 +97,7 @@
   - `context/03_IMPLEMENTATION_STATUS_TRACKER.md` — Marked Frontend Step 02 **DONE** (3/11 complete, ~27%).
 - **Why:** Provide full authentication lifecycle, evaluator transparency, and instant test-persona switching per Spec §5.16, §16, and Frontend Step 02.
 - **Verification:** Ran `cd frontend; npm.cmd run build` → `tsc -b && vite build` built in 397ms with **0 errors**; ran `cd backend; npm.cmd test` → **280/280 passed** across 19 suites; ran `cd UviAge; py -m uv run pytest` → **55/55 passed** across 7 suites.
-- **Commit:** Pending.
+- **Commit:** 7792898
 - **Follow-ups:** Proceed to Step 03: Landing & AI Discovery (`Research/Frontend/03_LANDING_AND_AI_DISCOVERY.md`).
 
 ### CHG-021 | 2026-10-29 | Python Backend Steps 08 & 09 — Circuit Breaker, Anti-Hallucination Sanitizer, Reindex Webhook & Benchmarks
