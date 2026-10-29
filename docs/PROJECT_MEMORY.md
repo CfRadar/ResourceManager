@@ -84,6 +84,57 @@
 
 ## 6. Change Log (newest first)
 
+### CHG-016 | 2026-10-29 | Step 10 — Scheduled Background Jobs, Audit Hash Chain, Admin Control, Notifications, Dashboards, AI Proxy & Health Probes
+- **Requested by:** User — "yes" (BKL-015).
+- **Skills used:** `project-memory-workflow`
+- **What changed:**
+  - `backend/package.json` — Added `node-cron` (^3.0.3).
+  - `backend/src/jobs/` — Implemented 7 scheduled background jobs:
+    - `bookingReminders.js` — Idempotently sends reminders 24h and 1h prior to `startAt`, and 30m prior to `endAt`.
+    - `overdueCheck.js` — Automatically transitions active bookings past return grace period (`BOOKING.LATE_RETURN_GRACE` = 15m) to `OVERDUE` via `transition()` and dispatches alerts.
+    - `noShowCheck.js` — Flags scheduled bookings past start grace period (`BOOKING.NO_SHOW_GRACE_MIN` = 15m) without check-in for manager action.
+    - `docAndTrainingExpiry.js` — Scans approved compliance documents and verified trainings, transitioning expired records to `EXPIRED` with audit events and user alerts.
+    - `waitlistExpiry.js` — Hourly job expiring unaccepted 24h waitlist offers (`EXPIRED`), promoting next FIFO candidate to `OFFERED` with fresh 24h window and notification.
+    - `referralTimeout.js` — Daily job transitioning stagnant referrals beyond 7 days (`REFERRAL.NO_RESPONSE_DAYS`) to `NO_RESPONSE` and alerting originating coordinator.
+    - `auditIntegrityCheck.js` — Daily cryptographic validation of SHA-256 hash chains across audit events, storing status for admin health dashboard.
+  - `backend/src/services/scheduler.js` — Job runner manager handling cron schedules, on-demand execution (`runJob(name)`), execution telemetry recording, and graceful start/stop lifecycle.
+  - `backend/src/modules/audit/` — Schemas, service, controller, and router:
+    - `GET /api/v1/audit/requests/:id` — Entity timeline with role-gated visibility (requesters restricted to `PARTIES`; staff access `INTERNAL`).
+    - `GET /api/v1/audit/resources/:id` — Resource lifecycle and policy change history for staff/managers.
+    - `GET /api/v1/audit/institution/:id` — Filterable institutional audit trail for admins.
+    - `GET /api/v1/audit/verify/:scope/:id` — Recomputes SHA-256 hash chain and returns `{ valid: true }` or first broken event ID.
+    - `POST /api/v1/audit/notes` — Appends immutable `AUDIT_NOTE_ADDED` event referencing prior event ID without mutating original records.
+  - `backend/src/modules/notifications/` — Schemas, service, controller, and router:
+    - `GET /api/v1/notifications` — In-app alerts listing with `?unread=true` filter and unread count badge.
+    - `POST /api/v1/notifications/:id/read` — Mark notification read.
+    - `POST /api/v1/notifications/read-all` — Mark all user notifications read.
+  - `backend/src/modules/admin/` — Schemas, service, controller, and router:
+    - `GET /api/v1/admin/jobs` — Registry of background cron jobs, schedules, and run telemetry.
+    - `POST /api/v1/admin/jobs/:jobName/run` — On-demand job trigger.
+    - `GET /api/v1/admin/users` — Cross-institutional user directory search.
+    - `POST /api/v1/admin/users/:id/suspend` — Account suspension with mandatory reason and immutable audit event.
+    - `POST /api/v1/admin/seed-demo` — Idempotent demo dataset seeder.
+  - `backend/src/modules/dashboards/` — Service, controller, and router:
+    - `GET /api/v1/dashboard/requester` — Next booking, pending request counts, token balance, unread alerts.
+    - `GET /api/v1/dashboard/manager` — Queue counts, today's schedule, overdue equipment counts.
+    - `GET /api/v1/dashboard/coordinator` — Open need-requests and referral counts by status.
+    - `GET /api/v1/dashboard/admin` — Member/facility/resource counts, total incidents, audit integrity status.
+    - `GET /api/v1/analytics/utilisation` — Hours utilised vs booked.
+    - `GET /api/v1/analytics/demand` — Active waitlist lengths and unfulfilled request demand.
+  - `backend/src/modules/aiProxy/` — Service, controller, and router:
+    - `POST /api/v1/ai/match-need` — Natural language need matching with 4s timeout and deterministic keyword fallback.
+    - `POST /api/v1/ai/parse-need` — Free text requirement parsing into structured fields.
+    - `POST /api/v1/ai/incident-summary` — Neutral factual incident timeline summarization.
+    - `POST /api/v1/ai/policy-summary` — Plain-language access policy summarization.
+  - `backend/src/app.js` — Mounted `/notifications`, `/audit`, `/admin`, `/dashboard`, `/analytics`, and `/ai`. Enhanced `/health` with live DB, AI service, and scheduler telemetry.
+  - `backend/src/server.js` — Wired `startScheduler()` on server startup and `stopScheduler()` on graceful shutdown.
+  - `backend/tests/auditChain.test.js` & `backend/tests/jobsAndHealth.test.js` — 31 tests covering all Step 10 capabilities.
+  - `context/03_IMPLEMENTATION_STATUS_TRACKER.md` — Marked Step 10 **DONE**, completing the Node.js Express backend (100%).
+- **Why:** Provide scheduled background maintenance, tamper-evident audit logging, administrative controls, in-app alerts, role dashboards, and resilient AI proxying per Spec §4.19, §4.20, §4.21, §4.23, §4.24, and §5.3.
+- **Verification:** Ran `cd backend; npm.cmd test` → **272/272 tests passing across 18 test suites** (100% green); ran `cd frontend; npm.cmd run build` → **0 errors**.
+- **Commit:** `217bc2b`
+- **Follow-ups:** Proceed to React Frontend Step 00/01 or Python AI service Step 03.
+
 ### CHG-015 | 2026-10-29 | Step 09 — Incidents, Tokens, Invoicing & Document Exports
 - **Requested by:** User — "continue" (BKL-014).
 - **Skills used:** `project-memory-workflow`
@@ -457,6 +508,13 @@
 ---
 
 ## 7. Mistakes and Lessons (newest first)
+
+### MST-003 | 2026-10-29 | Router auth middleware import identifier
+- **What went wrong:** When creating new modular routers for notifications, audit, admin, dashboards, and AI proxy, using `const { requireAuth } = require('../../middleware/auth')` caused `TypeError: argument handler is required` in `router.use(requireAuth)`.
+- **Root cause:** The auth middleware file (`src/middleware/auth.js`) exports `{ authenticate }`, not `{ requireAuth }`.
+- **Fix:** Corrected imports across all 5 new routers to `const { authenticate } = require('../../middleware/auth')`.
+- **Rule going forward:** Always inspect the target export signature in `middleware/auth.js` rather than assuming convention names.
+- **Related:** CHG-016
 
 ### MST-002 | 2026-10-29 | Express 5 req.query getter in request validation middleware
 - **What went wrong:** In Express 5 (`^5.3.0`), `req.query` is defined on the request prototype as a getter-only property. Attempting `req.query = result.data` in the Zod validation middleware threw `TypeError: Cannot set property query of [object Object] which has only a getter`.
