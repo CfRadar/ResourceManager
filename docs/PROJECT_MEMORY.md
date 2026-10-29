@@ -100,7 +100,7 @@
   - `context/03_IMPLEMENTATION_STATUS_TRACKER.md` — Marked Step 03 **DONE** (32 pytest tests passing).
 - **Why:** Enable researchers to express equipment requirements in natural language and receive structured requirements for candidate discovery per Spec §4.24 and §6.1.
 - **Verification:** Ran `cd UviAge; py -m uv run pytest` → **32/32 tests passing** (100% green); ran `cd backend; npm.cmd test` → **272/272 tests passing across 18 test suites**; ran `cd frontend; npm.cmd run build` → **0 errors**.
-- **Commit:** Pending.
+- **Commit:** `336118c`
 - **Follow-ups:** Proceed to Step 04 (Vector Embedding & Indexing) / Step 05 (Re-ranking) or Frontend Step 00/01.
 
 ### CHG-016 | 2026-10-29 | Step 10 — Scheduled Background Jobs, Audit Hash Chain, Admin Control, Notifications, Dashboards, AI Proxy & Health Probes
