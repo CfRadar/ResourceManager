@@ -96,7 +96,7 @@
   - `context/03_IMPLEMENTATION_STATUS_TRACKER.md` — Marked Frontend Step 04 **DONE** (5/11 complete, ~45%).
 - **Why:** Enable researchers to inspect lab instrument specifications, select compliant access modes, verify live eligibility criteria deterministically, and view human-readable policy rules before initiating access requests per Spec §5.3.
 - **Verification:** Ran `cd frontend; npm.cmd run build` → `tsc -b && vite build` built in 502ms with **0 errors**; ran `cd backend; npm.cmd test` → **280/280 passed** across 19 suites; ran `cd UviAge; py -m uv run pytest` → **55/55 passed** across 7 suites.
-- **Commit:** pending
+- **Commit:** dc1f499
 - **Follow-ups:** Proceed to Step 05: Dynamic Request Wizard (`Research/Frontend/05_DYNAMIC_REQUEST_WIZARD.md`).
 
 
