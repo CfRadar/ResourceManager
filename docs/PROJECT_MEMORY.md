@@ -100,7 +100,7 @@
   - `context/03_IMPLEMENTATION_STATUS_TRACKER.md` — Marked Frontend Step 09 **DONE** (10/11 complete, ~91%).
 - **Why:** Enable institutional researchers to commission staff-operated protocols, request uncataloged equipment with AI parsing, and facilitate cross-institutional reciprocal sharing under strict privacy rules per Spec §5.6, §5.12, §4.13, §4.14, and §7.
 - **Verification:** Ran `cd frontend; npm.cmd run build` → `tsc -b && vite build` built in 408ms with **0 errors**; ran `cd backend; npm.cmd test` → **280/280 passed** across 19 suites; ran `cd UviAge; py -m uv run pytest` → **55/55 passed** across 7 suites.
-- **Commit:** pending
+- **Commit:** f8a2a8a
 - **Follow-ups:** Proceed to final frontend Step 10: Incidents, Admin Audit & History (`Research/Frontend/10_INCIDENTS_ADMIN_AUDIT_AND_HISTORY.md`).
 
 ### CHG-028 | 2026-10-30 | React Frontend Step 08 — Manager Operations, Review Queue, Self-Approval Lockout & Returns Desk
