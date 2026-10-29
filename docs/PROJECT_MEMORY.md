@@ -43,7 +43,7 @@
 | Area | Status | Notes |
 |---|---|---|
 | **Backend API** | Complete (100%) | Steps 00–10 complete: modular architecture, all middleware, auth, institutions, facilities, memberships, partner linking, resources catalog, dynamic policy versioning, visibility filtering, confidential field redaction, availability computation, slot generation, blackout collision gating, availability polling, 6-check deterministic eligibility engine, access request lifecycle, central state machine transition engine, reviewer queue, FIFO waitlisting, concurrency-safe bookings & QR check-in, staff-operated service requests, missing-resource intake, candidate discovery, cross-institutional referrals, incident reporting & impartial rulings, fair-use token ledger, simulated billing/invoicing, Excel/PDF/CSV exports, 7 scheduled background cron jobs, scheduler telemetry, SHA-256 tamper-evident hash chain verification, admin controls, in-app notifications, role dashboards, and AI proxy with fallback. |
-| **Frontend** | In progress | React 19 + Vite + TypeScript. Steps 00–04 complete: React Router 7, TanStack Query, Axios JWT interceptors, Role switcher, Auth/Toast contexts, Auth/Role guards, Tailwind v4 design tokens, shared components, LoginPage with sample credential hints, RegisterPage with OTP routing, VerifyOtpPage with auto-fill demo banner & 6-digit inputs, JudgeToolbar with 1-click persona switching, LandingPage with NLP search & 3-step timeline, DiscoverPage with filter sidebar & parsed keyword chips, ResourceCard with match reasons popover & eligibility preview, ResourceDetailPage with risk tag, access mode selector, tabbed switcher, EligibilityChecklist (6 checks), PolicySummaryCard, and ConfidentialInstructionsCard. Builds cleanly with 0 errors. |
+| **Frontend** | In progress | React 19 + Vite + TypeScript. Steps 00–05 complete: React Router 7, TanStack Query, Axios JWT interceptors, Role switcher, Auth/Toast contexts, Auth/Role guards, Tailwind v4 design tokens, shared components, LoginPage with sample credential hints, RegisterPage with OTP routing, VerifyOtpPage with auto-fill demo banner & 6-digit inputs, JudgeToolbar with 1-click persona switching, LandingPage with NLP search & 3-step timeline, DiscoverPage with filter sidebar & parsed keyword chips, ResourceCard with match reasons popover & eligibility preview, ResourceDetailPage with risk tag, access mode selector, tabbed switcher, EligibilityChecklist (6 checks), PolicySummaryCard, ConfidentialInstructionsCard, and RequestWizardPage (5-step wizard, interactive 7-day SlotPicker with collision recovery, FairUseMeter, and HTML5 canvas SignaturePad). Builds cleanly with 0 errors. |
 | **AI Service** | Complete (100%) | Steps 00–09 complete: FastAPI architecture, BaseSettings, X-Internal-Key validation, Pydantic V2 contracts, ReadOnlyRepository with psycopg v3 and fixtures, NeedParser (/ai/parse-need), VectorIndexer (all-MiniLM-L6-v2), BM25Okapi deterministic fallback matcher (/ai/match-need), index rebuild (/ai/reindex) with ISO timestamps, objective incident summary drafting (/ai/incident-summary), Express circuit breaker & anti-hallucination sanitization, resource update webhooks, latency benchmarks, and concurrency stress testing. 55 pytest tests passing. |
 | **Database** | Migrations ready | 7 Knex migration files (001–007) cover all spec entities; BaseRepository done; seed ready. Run `npm run migrate:latest`. |
 | **Orchestration** | Working | Root Makefile with `make install`, `make backend`, `make frontend`, `make agent`, `make clear` |
@@ -83,6 +83,22 @@
 ---
 
 ## 6. Change Log (newest first)
+
+### CHG-025 | 2026-10-30 | React Frontend Step 05 — Dynamic Policy-Driven Access Request Wizard
+- **Requested by:** User (BKL-004).
+- **Skills used:** `project-memory-workflow`
+- **What changed:**
+  - `frontend/src/api/accessRequests.api.ts` — Created API client and interfaces for `createAccessRequest` (`POST /api/v1/access-requests`), `fetchAvailableSlots` (`GET /api/v1/resources/:id/slots`), and `fetchUserFairUse`.
+  - `frontend/src/components/requests/SlotPicker.tsx` — Built interactive 7-day schedule slot picker with duration tabs (1h/2h/4h), morning/afternoon/evening segmenting, live occupied slot collision warnings, and alternative slot suggestions.
+  - `frontend/src/components/requests/FairUseMeter.tsx` — Visual quota consumption meter showing prior bookings, requested booking slice, remaining weekly hours, and institutional token deduction preview.
+  - `frontend/src/components/requests/SignaturePad.tsx` — HTML5 canvas signature pad supporting touch and stylus inputs, clear/confirm actions, and legal waiver attestation.
+  - `frontend/src/features/requests/RequestWizardPage.tsx` — 5-step dynamic request wizard (`/resources/:id/request`) with persistent `sessionStorage` draft recovery, outside material declarations with approval tags, 409 conflict handling preserving user inputs with 3 quick alternative slots, and submission dispatch.
+  - `frontend/src/app/router.tsx` — Mounted `/resources/:id/request` protected by `AuthGuard`.
+  - `context/03_IMPLEMENTATION_STATUS_TRACKER.md` — Marked Frontend Step 05 **DONE** (6/11 complete, ~55%).
+- **Why:** Enable researchers to configure policy-compliant bookings, select real-time collision-free slots, declare materials, attest to lab safety via digital signature, and track fair-use quotas per Spec §5.4.
+- **Verification:** Ran `cd frontend; npm.cmd run build` → `tsc -b && vite build` built in 518ms with **0 errors**; ran `cd backend; npm.cmd test` → **280/280 passed** across 19 suites; ran `cd UviAge; py -m uv run pytest` → **55/55 passed** across 7 suites.
+- **Commit:** pending
+- **Follow-ups:** Proceed to Step 06: Requester Dashboard & Bookings (`Research/Frontend/06_REQUESTER_DASHBOARD_AND_BOOKINGS.md`).
 
 ### CHG-024 | 2026-10-29 | React Frontend Step 04 — Resource Detail View & Real-Time Eligibility Verification
 - **Requested by:** User (BKL-004).

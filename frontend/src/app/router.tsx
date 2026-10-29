@@ -7,6 +7,7 @@ import { LandingPage } from '../features/discovery/LandingPage';
 import { DiscoverPage } from '../features/discovery/DiscoverPage';
 import { ResourcesPage } from '../features/resources/ResourcesPage';
 import { ResourceDetailPage } from '../features/resources/ResourceDetailPage';
+import { RequestWizardPage } from '../features/requests/RequestWizardPage';
 import { LoginPage } from '../features/auth/LoginPage';
 import { RegisterPage } from '../features/auth/RegisterPage';
 import { VerifyOtpPage } from '../features/auth/VerifyOtpPage';
@@ -28,6 +29,14 @@ export const router = createBrowserRouter([
       { path: 'discover', element: <DiscoverPage /> },
       { path: 'resources', element: <ResourcesPage /> },
       { path: 'resources/:id', element: <ResourceDetailPage /> },
+      {
+        path: 'resources/:id/request',
+        element: (
+          <AuthGuard>
+            <RequestWizardPage />
+          </AuthGuard>
+        ),
+      },
 
       // Authentication Routes
       { path: 'login', element: <LoginPage /> },
