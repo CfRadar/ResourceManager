@@ -1,6 +1,7 @@
 """UviAge FastAPI application entrypoint."""
 
 from contextlib import asynccontextmanager
+from datetime import datetime, timezone
 from typing import Any, Dict, List, Set
 from fastapi import APIRouter, Depends, FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
@@ -85,6 +86,7 @@ async def health_check():
         "status": "healthy",
         "model_loaded": embedder.is_ready(),
         "database": repository.ping(),
+        "indexed_count": fallback.fallback_matcher.total_docs,
     }
 
 
@@ -238,6 +240,7 @@ async def reindex_endpoint():
         "ok": True,
         "indexed_count": count,
         "model_ready": embedder.vector_indexer.is_ready(),
+        "timestamp": datetime.now(timezone.utc).isoformat(),
     }
 
 

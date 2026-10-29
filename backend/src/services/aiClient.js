@@ -68,7 +68,8 @@ async function request(path, options) {
 
   let response;
   try {
-    response = await fetch(url, { ...options, signal: AbortSignal.timeout(30_000) });
+    const timeoutMs = options.timeoutMs || 4_000;
+    response = await fetch(url, { ...options, signal: options.signal || AbortSignal.timeout(timeoutMs) });
   } catch (err) {
     throw Errors.InternalError(
       `AI service is unreachable at ${BASE_URL}. Check that UviAge is running.`

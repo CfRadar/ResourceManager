@@ -44,10 +44,10 @@
 |---|---|---|
 | **Backend API** | Complete (100%) | Steps 00–10 complete: modular architecture, all middleware, auth, institutions, facilities, memberships, partner linking, resources catalog, dynamic policy versioning, visibility filtering, confidential field redaction, availability computation, slot generation, blackout collision gating, availability polling, 6-check deterministic eligibility engine, access request lifecycle, central state machine transition engine, reviewer queue, FIFO waitlisting, concurrency-safe bookings & QR check-in, staff-operated service requests, missing-resource intake, candidate discovery, cross-institutional referrals, incident reporting & impartial rulings, fair-use token ledger, simulated billing/invoicing, Excel/PDF/CSV exports, 7 scheduled background cron jobs, scheduler telemetry, SHA-256 tamper-evident hash chain verification, admin controls, in-app notifications, role dashboards, and AI proxy with fallback. |
 | **Frontend** | In progress | React 19 + Vite + TypeScript. Steps 00 & 01 complete: React Router 7, TanStack Query, Axios JWT interceptors, Role switcher, Auth/Toast contexts, Auth/Role guards, Tailwind v4 design tokens, and shared components (StatusBadge, ReasonDialog, DemoTag, AiSuggestionBadge, AuditIntegrityBadge, DemoBanner, AppLayout). Builds cleanly with 0 errors. |
-| **AI Service** | In progress | Steps 00–07 complete: FastAPI architecture, BaseSettings, X-Internal-Key validation, Pydantic V2 contracts, ReadOnlyRepository with psycopg v3 and fixtures, NeedParser (/ai/parse-need), VectorIndexer (all-MiniLM-L6-v2), BM25Okapi deterministic fallback matcher (/ai/match-need), index rebuild (/ai/reindex), and objective incident summary drafting (/ai/incident-summary). 49 pytest tests passing. |
+| **AI Service** | Complete (100%) | Steps 00–09 complete: FastAPI architecture, BaseSettings, X-Internal-Key validation, Pydantic V2 contracts, ReadOnlyRepository with psycopg v3 and fixtures, NeedParser (/ai/parse-need), VectorIndexer (all-MiniLM-L6-v2), BM25Okapi deterministic fallback matcher (/ai/match-need), index rebuild (/ai/reindex) with ISO timestamps, objective incident summary drafting (/ai/incident-summary), Express circuit breaker & anti-hallucination sanitization, resource update webhooks, latency benchmarks, and concurrency stress testing. 55 pytest tests passing. |
 | **Database** | Migrations ready | 7 Knex migration files (001–007) cover all spec entities; BaseRepository done; seed ready. Run `npm run migrate:latest`. |
 | **Orchestration** | Working | Root Makefile with `make install`, `make backend`, `make frontend`, `make agent`, `make clear` |
-| **Tests** | In progress | 321 tests passing (272 backend tests across 18 test suites + 49 UviAge AI service tests); 100% green |
+| **Tests** | In progress | 335 tests passing (280 backend tests across 19 test suites + 55 UviAge AI service tests); 100% green |
 
 **How to run:**
 - Install: `make install`
@@ -83,6 +83,23 @@
 ---
 
 ## 6. Change Log (newest first)
+
+### CHG-021 | 2026-10-29 | Python Backend Steps 08 & 09 — Circuit Breaker, Anti-Hallucination Sanitizer, Reindex Webhook & Benchmarks
+- **Requested by:** User — "do step 8 and 9 of python backend"
+- **Skills used:** `project-memory-workflow`
+- **What changed:**
+  - `backend/src/services/aiClient.js` — Enforced 4,000ms strict request timeout threshold via `AbortSignal.timeout(options.timeoutMs || 4_000)` per Spec §6.4.
+  - `backend/src/modules/aiProxy/aiProxy.service.js` — Implemented resilient `CircuitBreaker` class (`CLOSED`, `OPEN`, `HALF_OPEN`) with 3-failure threshold, fast-failing directly to keyword fallback during outages.
+  - `backend/src/modules/aiProxy/aiProxy.service.js` — Added visibility boundary computation (`visibleResourceIds`), anti-hallucination sanitization stripping any returned IDs outside visible scope, missing-resource `emptyMatchGuidance`, and `AI_UNAVAILABLE_FALLBACK` audit trail.
+  - `backend/src/modules/resources/resources.service.js` — Wired asynchronous fire-and-forget `/ai/reindex` notifications on resource creation, update, and deactivation.
+  - `backend/tests/aiProxyCircuitBreaker.test.js` — Added 6 integration tests for circuit breaker state transitions, fast-fail, anti-hallucination stripping, and audit logging.
+  - `UviAge/main.py` — Added `indexed_count` to `/ai/health`, added ISO `timestamp` to `POST /ai/reindex`.
+  - `UviAge/tests/test_benchmarks.py` — Added 6 performance tests for latency (< 50ms health, < 100ms parse, < 1s match), 5 concurrent async queries, strict visibility isolation, and reindex freshness.
+  - `context/03_IMPLEMENTATION_STATUS_TRACKER.md` — Marked Python AI Service 10/10 **DONE (100%)**.
+- **Why:** Complete the AI subsystem per Spec §4.24, §6.3, and §6.4, ensuring non-blocking resiliency, fast degradation to deterministic search, and zero hallucinations.
+- **Verification:** Ran `cd UviAge; py -m uv run pytest -v` → **55/55 passed** across 7 test suites; ran `cd backend; npm.cmd test` → **280/280 passed** across 19 test suites; ran `cd frontend; npm.cmd run build` → **0 errors**.
+- **Commit:** Pending.
+- **Follow-ups:** Proceed to Frontend Step 02: Authentication & Judge Login (`Research/Frontend/02_AUTHENTICATION_AND_JUDGE_LOGIN.md`).
 
 ### CHG-020 | 2026-10-29 | React Frontend Steps 00 & 01 — Architecture, Routing, Providers, Design Tokens & Shared Components
 - **Requested by:** User (BKL-004).

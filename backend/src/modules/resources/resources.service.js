@@ -16,6 +16,7 @@ const { db } = require('../../config/db');
 const { Errors } = require('../../utils/AppError');
 const { ROLES } = require('../../middleware/rbac');
 const { redactResource, isAuthorizedForPrivateDetails } = require('./redaction');
+const aiClient = require('../../services/aiClient');
 
 class ResourceService {
   /**
@@ -172,6 +173,7 @@ class ResourceService {
     };
 
     const created = await resourceRepo.insert(payload);
+    aiClient.post('/ai/reindex', {}).catch(() => {});
     return resourceRepo.findByIdWithDetails(created.id);
   }
 
@@ -214,6 +216,7 @@ class ResourceService {
     }
 
     await resourceRepo.update(id, updates);
+    aiClient.post('/ai/reindex', {}).catch(() => {});
     return resourceRepo.findByIdWithDetails(id);
   }
 
@@ -238,6 +241,7 @@ class ResourceService {
     }
 
     await resourceRepo.softDeactivate(id);
+    aiClient.post('/ai/reindex', {}).catch(() => {});
     return {
       id,
       status: 'INACTIVE',
