@@ -1,6 +1,6 @@
 # Live Implementation Status Tracker
 
-> **LAST UPDATED:** 2026-10-29 (UviAge Step 07 Complete)
+> **LAST UPDATED:** 2026-10-29 (Frontend Steps 00 & 01 Complete)
 > **RULE:** Any agent completing a blueprint step MUST update this tracker alongside `docs/PROJECT_MEMORY.md`.
 
 ---
@@ -11,7 +11,7 @@
 | :--- | :--- | :---: | :---: | :---: | :---: | :---: |
 | **Node.js Express Backend** | `Research/NodeBackend/` | **11 / 11** | 0 | **0** | **272 passed** (18 suites) | **100%** |
 | **Python AI Service (UviAge)** | `Research/PythonBackend/` | **8 / 10** | **2** | **0** | **49 passed** | **~80%** |
-| **React Frontend** | `Research/Frontend/` | **0 / 11** | 0 | **11** | Build verified | **~5%** |
+| **React Frontend** | `Research/Frontend/` | **2 / 11** | 0 | **9** | Build verified (0 errors) | **~18%** |
 
 ---
 
@@ -58,9 +58,9 @@
 
 | Step # | Blueprint Specification | Status | Current Code State | Next Action |
 | :---: | :--- | :---: | :--- | :--- |
-| **00** | `00_ARCHITECTURE_ROUTING_AND_PROVIDERS.md` | ⏳ **PENDING** | Base Vite + React 19 boilerplate in `frontend/src/` | Configure React Router 7 & TanStack Query |
-| **01** | `01_DESIGN_SYSTEM_AND_SHARED_COMPONENTS.md` | ⏳ **PENDING** | Default CSS | Create tokens & shared badges/dialogs |
-| **02** | `02_AUTHENTICATION_AND_JUDGE_LOGIN.md` | ⏳ **PENDING** | Not started | Build Login, Register, Judge Toolbar |
+| **00** | `00_ARCHITECTURE_ROUTING_AND_PROVIDERS.md` | **DONE** | React Router 7, TanStack Query, Axios JWT interceptors, Role switcher, Auth/Toast contexts, Auth/Role guards | Proceed to Step 02 |
+| **01** | `01_DESIGN_SYSTEM_AND_SHARED_COMPONENTS.md` | **DONE** | Tailwind v4 tokens, StatusBadge (15 states), ReasonDialog, DemoTag, AiSuggestionBadge, AuditIntegrityBadge, DemoBanner, AppLayout | Proceed to Step 02 |
+| **02** | `02_AUTHENTICATION_AND_JUDGE_LOGIN.md` | ⏳ **PENDING** | Demo persona auth wired; dedicated screens pending | Build Login, Register, Judge Toolbar screens |
 | **03** | `03_LANDING_AND_AI_DISCOVERY.md` | ⏳ **PENDING** | Not started | Build Hero search bar & ResourceCards |
 | **04** | `04_RESOURCE_DETAIL_AND_ELIGIBILITY_CHECK.md` | ⏳ **PENDING** | Not started | Build Detail view & Eligibility checklist |
 | **05** | `05_DYNAMIC_REQUEST_WIZARD.md` | ⏳ **PENDING** | Not started | Build 5-step policy wizard & SlotPicker |
@@ -77,5 +77,5 @@
 ## 5. Immediate Next Steps / Implementation Roadmap
 
 The next immediate implementation choices are:
-1. **React Frontend Step 00 & 01 (`00_ARCHITECTURE_ROUTING_AND_PROVIDERS.md` & `01_DESIGN_SYSTEM_AND_SHARED_COMPONENTS.md`):** Configure React Router 7, TanStack Query, Axios JWT interceptors, design tokens, and shared components.
+1. **React Frontend Step 02 (`02_AUTHENTICATION_AND_JUDGE_LOGIN.md`):** Complete dedicated Login, Register, Persona credentials display, and judge login redirect flow.
 2. **AI Service Benchmarks & Finalization (`09_TESTING_BENCHMARKS_AND_INDEX_REBUILD.md`):** Load testing, latency benchmarks, and background task stress testing.

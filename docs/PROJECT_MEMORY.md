@@ -43,7 +43,7 @@
 | Area | Status | Notes |
 |---|---|---|
 | **Backend API** | Complete (100%) | Steps 00–10 complete: modular architecture, all middleware, auth, institutions, facilities, memberships, partner linking, resources catalog, dynamic policy versioning, visibility filtering, confidential field redaction, availability computation, slot generation, blackout collision gating, availability polling, 6-check deterministic eligibility engine, access request lifecycle, central state machine transition engine, reviewer queue, FIFO waitlisting, concurrency-safe bookings & QR check-in, staff-operated service requests, missing-resource intake, candidate discovery, cross-institutional referrals, incident reporting & impartial rulings, fair-use token ledger, simulated billing/invoicing, Excel/PDF/CSV exports, 7 scheduled background cron jobs, scheduler telemetry, SHA-256 tamper-evident hash chain verification, admin controls, in-app notifications, role dashboards, and AI proxy with fallback. |
-| **Frontend** | In progress | React + Vite + TypeScript initialized with basic App component on port 5173 |
+| **Frontend** | In progress | React 19 + Vite + TypeScript. Steps 00 & 01 complete: React Router 7, TanStack Query, Axios JWT interceptors, Role switcher, Auth/Toast contexts, Auth/Role guards, Tailwind v4 design tokens, and shared components (StatusBadge, ReasonDialog, DemoTag, AiSuggestionBadge, AuditIntegrityBadge, DemoBanner, AppLayout). Builds cleanly with 0 errors. |
 | **AI Service** | In progress | Steps 00–07 complete: FastAPI architecture, BaseSettings, X-Internal-Key validation, Pydantic V2 contracts, ReadOnlyRepository with psycopg v3 and fixtures, NeedParser (/ai/parse-need), VectorIndexer (all-MiniLM-L6-v2), BM25Okapi deterministic fallback matcher (/ai/match-need), index rebuild (/ai/reindex), and objective incident summary drafting (/ai/incident-summary). 49 pytest tests passing. |
 | **Database** | Migrations ready | 7 Knex migration files (001–007) cover all spec entities; BaseRepository done; seed ready. Run `npm run migrate:latest`. |
 | **Orchestration** | Working | Root Makefile with `make install`, `make backend`, `make frontend`, `make agent`, `make clear` |
@@ -83,6 +83,30 @@
 ---
 
 ## 6. Change Log (newest first)
+
+### CHG-020 | 2026-10-29 | React Frontend Steps 00 & 01 — Architecture, Routing, Providers, Design Tokens & Shared Components
+- **Requested by:** User (BKL-004).
+- **Skills used:** `project-memory-workflow`
+- **What changed:**
+  - `frontend/package.json` & `frontend/vite.config.ts`: Installed `@tailwindcss/vite` and Tailwind v4 alongside `lucide-react`, `clsx`, `tailwind-merge`, `@tanstack/react-query`, `axios`, `react-router-dom`.
+  - `frontend/src/index.css`: Injected `@import "tailwindcss"` and semantic color design tokens (`--status-approved`, `--status-pending`, `--status-rejected`, `--status-in-use`, `--status-closed`, etc.).
+  - `frontend/src/api/client.ts`: Axios instance (`/api/v1`) with automatic Bearer token injection and 401 token refresh rotation queue.
+  - `frontend/src/api/auth.api.ts`: API endpoints for `login`, `register`, `getMe`, `logout`, and standard `ApiResponse` types.
+  - `frontend/src/app/queryClient.ts`: TanStack QueryClient configured with 30s stale time and 1 retry.
+  - `frontend/src/context/ToastContext.tsx`: Accessible toast notification queue (`success`, `error`, `info`, `warning`).
+  - `frontend/src/context/RoleContext.tsx`: Evaluator acting role switcher (`REQUESTER`, `MANAGER`, `COORDINATOR`, `ADMIN`, `COMMUNITY_PARTNER`).
+  - `frontend/src/context/AuthContext.tsx`: Session manager with token persistence and 1-click persona logins (`DEMO_USERS`).
+  - `frontend/src/app/guards/AuthGuard.tsx` & `RoleGuard.tsx`: Route guards with accessible "Access Restricted" fallback screen.
+  - `frontend/src/components/feedback/`: Built `StatusBadge.tsx` (15 states with icon + text), `ReasonDialog.tsx` (reviewer rationale modal), `DemoTag.tsx`, `AiSuggestionBadge.tsx`, and `AuditIntegrityBadge.tsx`.
+  - `frontend/src/components/layout/`: Built `DemoBanner.tsx`, `Navbar.tsx`, `RoleSwitcher.tsx`, `JudgeToolbar.tsx`, and `AppLayout.tsx`.
+  - `frontend/src/app/router.tsx`: Configured React Router hierarchy covering public, requester, manager, coordinator, admin, and 404 routes.
+  - `frontend/src/App.tsx`: Wired QueryClient, Toast, Role, and Auth providers around `RouterProvider`.
+  - Pruned unused imports and converted type imports to `import type` across all frontend components for strict `verbatimModuleSyntax` and `noUnusedLocals` compliance.
+  - `context/03_IMPLEMENTATION_STATUS_TRACKER.md` — Marked Steps 00 & 01 **DONE** (2/11 steps complete, ~18%).
+- **Why:** Establish foundational frontend application architecture, state providers, design system tokens, and shared UI component primitives per Spec §2, §3, and §12.
+- **Verification:** Ran `cd frontend; npm.cmd run build` → `tsc -b && vite build` built in 2.53s with **0 errors**; ran `cd backend; npm.cmd test` → **272/272 tests passing across 18 test suites**; ran `cd UviAge; py -m uv run pytest` → **49/49 tests passing**.
+- **Commit:** Pending.
+- **Follow-ups:** Proceed to Step 02: Authentication & Judge Login (`Research/Frontend/02_AUTHENTICATION_AND_JUDGE_LOGIN.md`).
 
 ### CHG-019 | 2026-10-29 | UviAge Step 07 — Objective Incident Summary Drafting (/ai/incident-summary)
 - **Requested by:** User — "now do this file" (BKL-016).
@@ -563,6 +587,13 @@
 ---
 
 ## 7. Mistakes and Lessons (newest first)
+
+### MST-005 | 2026-10-29 | TypeScript verbatimModuleSyntax and noUnusedLocals in Vite template
+- **What went wrong:** `tsc -b` failed with `TS1484: 'UserRole' is a type and must be imported using a type-only import` and `TS6133: '...' is declared but its value is never read`.
+- **Root cause:** `frontend/tsconfig.app.json` has `verbatimModuleSyntax: true` and `noUnusedLocals: true`, which strictly forbids value-syntax imports for types and flags any unused symbol as a hard build error.
+- **Fix:** Switched to `import type { UserRole }` across all components and cleaned up all unused imports.
+- **Rule going forward:** Always write `import type { ... }` for TypeScript types and interfaces; prune all unused imports before triggering builds.
+- **Related:** CHG-020
 
 ### MST-004 | 2026-10-29 | Missing module-level delegating helpers for singleton class repository
 - **What went wrong:** FastAPI route handler crashed with `AttributeError: module 'repository' has no attribute 'get_all_active_resources'`.

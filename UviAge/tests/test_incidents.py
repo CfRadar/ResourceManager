@@ -247,3 +247,4 @@ async def test_http_incident_summary_auth_and_validation():
             headers={"X-Internal-Key": settings.INTERNAL_API_KEY},
         )
         assert res_bad_body.status_code == 422
+
