@@ -3,22 +3,24 @@
 /**
  * src/modules/resources/resources.router.js
  *
- * Express router for resources catalog and policies.
- * Spec §4.5, §4.6, Step 04.
+ * Express router for resources catalog, policies, availability, and eligibility.
+ * Spec §4.5, §4.6, §4.7, §4.8, Steps 04 & 05.
  */
 
 const express = require('express');
-const { resourcesController } = require('./resources.controller');
-const { policiesController }  = require('../policies/policies.controller');
-const { authenticate }        = require('../../middleware/auth');
-const { validate }            = require('../../middleware/validate');
+const { resourcesController }   = require('./resources.controller');
+const { policiesController }    = require('../policies/policies.controller');
+const { availabilityRouter }    = require('../availability/availability.router');
+const { eligibilityRouter }     = require('../eligibility/eligibility.router');
+const { authenticate }          = require('../../middleware/auth');
+const { validate }              = require('../../middleware/validate');
 const {
   listResourcesQuerySchema,
   createResourceSchema,
   updateResourceSchema,
   resourceIdParamSchema,
 } = require('./resources.schema');
-const { updatePolicySchema }  = require('../policies/policies.schema');
+const { updatePolicySchema }    = require('../policies/policies.schema');
 
 const router = express.Router();
 
@@ -92,5 +94,10 @@ router.put(
   policiesController.updatePolicy
 );
 
-module.exports = router;
+// ─── Availability, Slots, Blackouts, & Polls (Step 05, Spec §4.7) ────────────
+router.use('/:id', availabilityRouter);
 
+// ─── Deterministic Eligibility Check (Step 05, Spec §4.8) ────────────────────
+router.use('/:id', eligibilityRouter);
+
+module.exports = router;

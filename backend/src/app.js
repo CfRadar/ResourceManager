@@ -126,6 +126,10 @@ function buildApiRouter() {
   const resourcesRouter = require('./modules/resources/resources.router');
   router.use('/resources', resourcesRouter);
 
+  // ── Availability Polls voting (Step 05) ───────────────────────────────────
+  const { pollsRouter } = require('./modules/availability/availability.router');
+  router.use('/availability-polls', pollsRouter);
+
   return router;
 }
 

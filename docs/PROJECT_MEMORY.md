@@ -42,12 +42,12 @@
 
 | Area | Status | Notes |
 |---|---|---|
-| **Backend API** | In progress | Steps 00–04 complete: modular architecture, all middleware, auth, institutions, facilities, memberships, partner linking, resources catalog, dynamic policy versioning, visibility filtering, and confidential field redaction. Steps 05–10 pending. |
+| **Backend API** | In progress | Steps 00–05 complete: modular architecture, all middleware, auth, institutions, facilities, memberships, partner linking, resources catalog, dynamic policy versioning, visibility filtering, confidential field redaction, availability computation, slot generation, blackout collision gating, availability polling, and 6-check deterministic eligibility engine. Steps 06–10 pending. |
 | **Frontend** | In progress | React + Vite + TypeScript initialized with basic App component on port 5173 |
 | **AI Service** | In progress | FastAPI initialized with `/` and `/ai/health` on port 8000; matching engine pending |
 | **Database** | Migrations ready | 7 Knex migration files (001–007) cover all spec entities; BaseRepository done; seed ready. Run `npm run migrate:latest`. |
 | **Orchestration** | Working | Root Makefile with `make install`, `make backend`, `make frontend`, `make agent`, `make clear` |
-| **Tests** | In progress | 110 tests passing (12 smoke + 24 auth + 26 institutions + 22 facilities + 16 resources + 10 policies); 6 test suites all green |
+| **Tests** | In progress | 133 tests passing (12 smoke + 24 auth + 26 institutions + 22 facilities + 16 resources + 10 policies + 15 availability + 8 eligibility); 8 test suites all green |
 
 **How to run:**
 - Install: `make install`
@@ -56,7 +56,7 @@
 - Dev backend with hot-reload: `cd backend && npm run dev`
 
 **How to verify:**
-- Backend tests: `npm.cmd test --prefix backend` → 110 tests pass across 6 suites
+- Backend tests: `npm.cmd test --prefix backend` → 133 tests pass across 8 suites
 - Backend health: `curl http://localhost:5000/health` → `{"ok":true,"data":{"status":"healthy"}}`
 - Backend API health: `curl http://localhost:5000/api/v1/health` → same shape
 - AI Service: `curl http://localhost:8000/ai/health` → `{"ok":true,"status":"healthy"}`
@@ -83,6 +83,32 @@
 ---
 
 ## 6. Change Log (newest first)
+
+### CHG-010 | 2026-10-29 | Step 05 — Availability, Blackouts, Slots & Deterministic Eligibility Implementation
+- **Requested by:** User — "IMPLEMENTATION PROMPT — STEP 05" (BKL-010).
+- **Skills used:** `project-memory-workflow`
+- **What changed:**
+  - `backend/src/services/bookingEngine.js` — Core timezone-aware interval arithmetic (`calculateAvailabilityIntervals`), discrete bookable slot generation (`getSuggestedSlots`), interval subtraction math, and IANA timezone UTC mapping.
+  - `backend/src/services/eligibilityEngine.js` — 100% deterministic eligibility rule engine (zero AI/LLM) evaluating the 6 standard checks:
+    1. `membership_verified` (active affiliation at host or approved partner institution)
+    2. `user_group_allowed` (role/userGroup matched against policy permitted groups)
+    3. `training` (verified, unexpired prerequisites; returns `FAIL` with actionable `BOOK_TRAINING` links)
+    4. `documents` (signed/approved document templates; returns `MISSING` with actionable `SIGN_DOCUMENT` links)
+    5. `fair_use` (active bookings cap, weekly hours limit, and cumulative no-show strike limit)
+    6. `slot_free` (operating hours boundary check and active reservation/blackout collision prevention)
+  - `backend/src/modules/availability/availability.schema.js` — Zod schemas for availability range queries, slots queries, blackout creation payloads with collision confirmation flags, and poll voting.
+  - `backend/src/modules/availability/availability.repository.js` — Data access layer querying active bookings (`SCHEDULED`, `CHECKED_IN`, `IN_USE`), active blackouts (`deleted_at IS NULL`), poll creation/votes, and atomic transaction updates for colliding bookings (`NEEDS_REBOOK`).
+  - `backend/src/modules/availability/availability.service.js` — Service handling interval merging, privacy redaction (purely anonymized `Booked` blocks without user PII), slot slicing with policy constraints, manager-gated blackout creation with 409 collision rejection unless `confirmCancelAffected: true`, and availability polling.
+  - `backend/src/modules/availability/availability.controller.js` & `availability.router.js` — HTTP controllers and Express routers for availability, slots, blackouts, and polls.
+  - `backend/src/modules/eligibility/eligibility.schema.js`, `eligibility.controller.js`, `eligibility.router.js` — Validation, controller, and router for `POST /api/v1/resources/:id/eligibility-check`.
+  - `backend/src/modules/resources/resources.router.js` — Mounted availability and eligibility sub-routers under `/resources/:id/*`.
+  - `backend/src/app.js` — Mounted top-level `pollsRouter` for `/api/v1/availability-polls/:pollId/vote`.
+  - `backend/tests/availability.test.js` — 15 integration tests verifying interval calculations, privacy anonymization, slot slicing, blackout collision 409 gating, soft deletion, and polling.
+  - `backend/tests/eligibility.test.js` — 8 integration tests covering the 6 deterministic checks, action links, next steps, and boundary conditions.
+- **Why:** Provide automated, timezone-accurate schedule management and deterministic access verification prior to request submission.
+- **Verification:** Ran `npm.cmd test --prefix backend` → **133/133 passing across 8 test suites**.
+- **Commit:** Pending.
+- **Follow-ups:** Step 06: Access Requests, State Machine, Review Queue & Appeals (`Research/NodeBackend/06_ACCESS_REQUESTS_AND_STATE_MACHINE.md`).
 
 ### CHG-009 | 2026-10-29 | Step 04 — Resources, Policies & Redaction Layer Implementation
 - **Requested by:** User — "continue" (BKL-009).
@@ -295,7 +321,8 @@
 - [x] BKL-008 done in CHG-008 (Step 03: Institutions, Facilities, Memberships & Partners API, 84 tests)
 - [x] BKL-002 done in CHG-009 (Step 04: Resources catalog, search, and visibility filtering)
 - [x] BKL-009 done in CHG-009 (Step 04: Dynamic policy versioning and confidential redaction layer, 110 tests)
-- [ ] BKL-010 (P0) Step 05: Availability Slots & Eligibility Engine | Source: Research/NodeBackend/05_AVAILABILITY_SLOTS_AND_ELIGIBILITY.md
+- [x] BKL-010 done in CHG-010 (Step 05: Availability, Blackouts, Slots & Deterministic Eligibility Engine, 133 tests)
+- [ ] BKL-011 (P0) Step 06: Access Requests, State Machine, Review Queue & Appeals | Source: Research/NodeBackend/06_ACCESS_REQUESTS_AND_STATE_MACHINE.md
 - [ ] BKL-003 (P0) Implement UviAge `/ai/parse-need` and `/ai/match-need` endpoints | Source: Research/01_BACKEND_API_SPEC.md
 - [ ] BKL-004 (P1) Implement React frontend navigation, layout, and resource catalog pages | Source: Research/02_FRONTEND_DESIGN_SPEC.md
 - [ ] BKL-005 (P1) Implement end-to-end booking reservation and approval workflow | Source: Research/01_BACKEND_API_SPEC.md
