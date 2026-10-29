@@ -101,7 +101,7 @@
   - `context/03_IMPLEMENTATION_STATUS_TRACKER.md` — Marked Frontend Step 06 **DONE** (7/11 complete, ~64%).
 - **Why:** Enable researchers to track requests in real time, respond to reviewer questions, file appeals, access unlocked physical PINs, and manage reservations per Spec §5.7, §5.8 & §5.9.
 - **Verification:** Ran `cd frontend; npm.cmd run build` → `tsc -b && vite build` built in 522ms with **0 errors**; ran `cd backend; npm.cmd test` → **280/280 passed** across 19 suites; ran `cd UviAge; py -m uv run pytest` → **55/55 passed** across 7 suites.
-- **Commit:** pending
+- **Commit:** 95d2fac
 - **Follow-ups:** Proceed to Step 07: Check-In/Check-Out & Signature Pad (`Research/Frontend/07_CHECKIN_CHECKOUT_AND_SIGNATURE_PAD.md`).
 
 ### CHG-025 | 2026-10-30 | React Frontend Step 05 — Dynamic Policy-Driven Access Request Wizard
