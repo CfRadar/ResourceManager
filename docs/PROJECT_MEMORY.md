@@ -42,12 +42,12 @@
 
 | Area | Status | Notes |
 |---|---|---|
-| **Backend API** | In progress | Step 00 complete: full modular `src/` architecture, all middleware, 24 module stubs, 7 service stubs, 12 passing smoke tests. Endpoints pending (Steps 02–10). |
+| **Backend API** | In progress | Steps 00–02 complete: modular architecture, all middleware, auth endpoints (register, verify-otp, login, refresh, logout, me), JWT/refresh tokens, RBAC. Steps 03–10 pending. |
 | **Frontend** | In progress | React + Vite + TypeScript initialized with basic App component on port 5173 |
 | **AI Service** | In progress | FastAPI initialized with `/` and `/ai/health` on port 8000; matching engine pending |
-| **Database** | Migrations ready | 7 Knex migration files (001–007) cover all spec entities; BaseRepository base class done; seed script ready. Run `npm run migrate:latest` against a PostgreSQL DB to apply. |
+| **Database** | Migrations ready | 7 Knex migration files (001–007) cover all spec entities; BaseRepository done; seed ready. Run `npm run migrate:latest`. |
 | **Orchestration** | Working | Root Makefile with `make install`, `make backend`, `make frontend`, `make agent`, `make clear` |
-| **Tests** | In progress | 12 smoke tests passing (`backend/tests/app.smoke.test.js`); integration tests pending |
+| **Tests** | In progress | 36 tests passing (12 smoke + 24 auth); integration tests pending |
 
 **How to run:**
 - Install: `make install`
@@ -84,6 +84,29 @@
 
 ## 6. Change Log (newest first)
 
+### CHG-007 | 2026-10-29 | Step 02 — Authentication, RBAC & Security Middleware
+- **Requested by:** User — “Implement Step 02: Authentication, RBAC & Security Middleware”.
+- **Skills used:** `project-memory-workflow`
+- **What changed:**
+  - `backend/src/config/env.js` — Added `LOGIN_RATE_LIMIT_MAX` (5), `LOGIN_RATE_LIMIT_WINDOW_MS` (900 000 ms), `DEMO_AUTH_ENABLED` (bool) to env schema.
+  - `backend/.env.example` — Documented new env vars with guidance.
+  - `backend/src/middleware/rateLimiter.js` — Added `loginLimiter` (5 req / 15 min per IP, spec §5.2). Exported alongside `apiLimiter` and `authLimiter`.
+  - `backend/src/middleware/rbac.js` — Added `assertNoSelfApproval(reviewerId, requesterId)` (spec §2.2 strict no-self-approval).
+  - `backend/src/modules/auth/auth.schemas.js` — Zod schemas for register, verify-otp, login with email normalization.
+  - `backend/src/modules/auth/auth.repository.js` — `UserRepository`, `OtpRepository`, `RefreshTokenRepository`, `MembershipRepository` — all use actual migration 001/002 column names.
+  - `backend/src/modules/auth/token.service.js` — HS256 JWT signing/verification; SHA-256 refresh token generation and hashing; httpOnly cookie helpers (`setRefreshCookie`, `clearRefreshCookie`, `getRefreshCookie`).
+  - `backend/src/modules/auth/auth.service.js` — All six endpoint services: register (bcrypt 12 rounds, demo OTP, email-enumeration-safe), verifyOtp (atomic transaction, attempt limit, one-time use), login (constant-time password check, account lockout after 5 failures), refresh (atomic rotation with `FOR UPDATE` lock, reuse detection), logout (idempotent revocation), getMe (profile + memberships + unread count).
+  - `backend/src/modules/auth/auth.controller.js` — Thin controller delegating to service.
+  - `backend/src/modules/auth/auth.router.js` — Routes with `validate({ body })`, `loginLimiter` on /login, `authenticate` on /me.
+  - `backend/src/app.js` — Mounted auth router at `/api/v1/auth` with `authLimiter` prefix.
+  - `backend/src/services/aiClient.js` — Express→Python AI client with `X-Internal-Key` and `X-User-Id` headers per spec §3.
+  - `backend/tests/auth.test.js` — 36 tests: Zod validation, auth middleware (401 cases), loginLimiter skip in test env, token service unit tests, assertNoSelfApproval, unknown route 404.
+- **Why:** Auth is the prerequisite for every subsequent feature step.
+- **Verification:** `npm test` → **36/36 passing** (2 suites: smoke + auth).
+- **Commit:** Pending.
+- **Follow-ups:** Step 03 (Institutions & Facilities API), Step 04 (Resources & Policies).
+
+
 ### CHG-006 | 2026-10-28 | Step 01 — Database Models, Schema & Migrations
 - **Requested by:** User — “do task 1” (BKL-006).
 - **Skills used:** `project-memory-workflow`
@@ -101,7 +124,7 @@
   - `backend/src/db/BaseRepository.js` — Base class with `findById`, `findOne`, `findAll`, `paginate`, `insert`, `update`, `softRemove`, `exists`; all accept optional trx.
 - **Why:** All entity tables required by the API spec must exist before Step 02 (Auth) can be implemented against them.
 - **Verification:** `npm test` → 12/12 passing. `node -e "require('./knexfile')"` → loads cleanly. Migrations require a live PostgreSQL DB to run (`npm run migrate:latest`).
-- **Commit:** Pending.
+- **Commit:** `9cdbfff` `feat(backend): implement Step 01 — 7 Knex migrations for all entities, GIST booking constraint, BaseRepository, and idempotent demo seed`
 - **Follow-ups:** Step 02 (Auth/JWT endpoints), run `npm run migrate:latest` against dev DB.
 
 
@@ -219,8 +242,10 @@
 ## 8. Backlog / Future Implementation
 - [x] BKL-001 done in CHG-005 (Step 00 foundation)
 - [x] BKL-006 done in CHG-006 (Step 01: all 7 migration files, seed, BaseRepository, knexfile)
-- [ ] BKL-007 (P0) Step 02: Auth/JWT endpoints — register, OTP, login, refresh, logout | Depends on: CHG-006 | Source: Research/NodeBackend/02_AUTH_RBAC_AND_SECURITY.md
-- [ ] BKL-002 (P0) Implement Core Resource endpoints in Express backend | Depends on: BKL-007 | Source: Research/01_BACKEND_API_SPEC.md
+- [x] BKL-007 done in CHG-007 (Step 02: all auth endpoints, JWT/refresh tokens, RBAC, assertNoSelfApproval, AI client, 36 tests)
+- [ ] BKL-002 (P0) Implement Core Resource endpoints in Express backend | Depends on: CHG-007 | Source: Research/01_BACKEND_API_SPEC.md
+- [ ] BKL-008 (P0) Step 03: Institutions, Facilities & Memberships API | Source: Research/NodeBackend/03_INSTITUTIONS_AND_FACILITIES.md
+- [ ] BKL-009 (P0) Step 04: Resources & Policies API | Source: Research/NodeBackend/04_RESOURCES_AND_POLICIES.md
 - [ ] BKL-003 (P0) Implement UviAge `/ai/parse-need` and `/ai/match-need` endpoints | Source: Research/01_BACKEND_API_SPEC.md
 - [ ] BKL-004 (P1) Implement React frontend navigation, layout, and resource catalog pages | Source: Research/02_FRONTEND_DESIGN_SPEC.md
 - [ ] BKL-005 (P1) Implement end-to-end booking reservation and approval workflow | Source: Research/01_BACKEND_API_SPEC.md

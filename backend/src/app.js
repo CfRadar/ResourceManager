@@ -28,7 +28,7 @@ const cookieParser = require('cookie-parser');
 
 const env                = require('./config/env');
 const { REQUEST }        = require('./config/constants');
-const { apiLimiter }     = require('./middleware/rateLimiter');
+const { apiLimiter, authLimiter } = require('./middleware/rateLimiter');
 const { errorHandler }   = require('./middleware/errorHandler');
 const { Errors }         = require('./utils/AppError');
 
@@ -111,10 +111,15 @@ function buildApiRouter() {
     });
   });
 
+  // ── Auth module (Step 02) ─────────────────────────────────────────────────
+  const authRouter = require('./modules/auth/auth.router');
+  // authLimiter applied here (general auth limit); loginLimiter applied per-route in authRouter.
+  router.use('/auth', authLimiter, authRouter);
+
   // ── Module routers are mounted here in later steps ──────────────────────────
-  // Example (Step 02):
-  //   const authRouter = require('./modules/auth/auth.router');
-  //   router.use('/auth', authLimiter, authRouter);
+  // Example (Step 03+):
+  //   const resourcesRouter = require('./modules/resources/resources.router');
+  //   router.use('/resources', resourcesRouter);
   // ─────────────────────────────────────────────────────────────────────────────
 
   return router;

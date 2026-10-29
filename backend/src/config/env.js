@@ -91,6 +91,25 @@ const envSchema = z.object({
     .regex(/^\d+$/)
     .default('10')
     .transform(Number),
+  // Strict login limiter: spec §5.2 — 5 req / 15 min per IP
+  LOGIN_RATE_LIMIT_MAX: z
+    .string()
+    .regex(/^\d+$/)
+    .default('5')
+    .transform(Number),
+  LOGIN_RATE_LIMIT_WINDOW_MS: z
+    .string()
+    .regex(/^\d+$/)
+    .default('900000')  // 15 minutes
+    .transform(Number),
+
+  // Demo authentication flag (spec §1.3 demo mode).
+  // When true and NODE_ENV != production: OTP is returned in register response.
+  // NEVER enable in production.
+  DEMO_AUTH_ENABLED: z
+    .enum(['true', 'false'])
+    .default('false')
+    .transform((v) => v === 'true'),
 });
 
 // ─── Validation ───────────────────────────────────────────────────────────────

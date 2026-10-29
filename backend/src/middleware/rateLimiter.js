@@ -66,4 +66,18 @@ const authLimiter = rateLimit({
   skip:             () => isTest,
 });
 
-module.exports = { apiLimiter, authLimiter };
+/**
+ * Login-specific rate limiter.
+ * Spec §5.2 / Step 02: 5 requests per 15 minutes per IP.
+ * Applied only to POST /api/v1/auth/login.
+ */
+const loginLimiter = rateLimit({
+  windowMs:         env.LOGIN_RATE_LIMIT_WINDOW_MS, // default 900 000 ms (15 min)
+  max:              env.LOGIN_RATE_LIMIT_MAX,        // default 5
+  standardHeaders:  true,
+  legacyHeaders:    false,
+  handler:          rateLimitHandler,
+  skip:             () => isTest,
+});
+
+module.exports = { apiLimiter, authLimiter, loginLimiter };

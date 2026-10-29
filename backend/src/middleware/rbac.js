@@ -191,10 +191,36 @@ function requireSelf(paramKey = 'userId') {
   };
 }
 
+// ─── assertNoSelfApproval ────────────────────────────────────────────────────
+
+/**
+ * Strict no-self-approval rule (spec §2.2 / Step 02).
+ * Call inside any review, approval, or incident-resolution handler.
+ *
+ * Both IDs MUST come from trusted database records or authenticated identity
+ * — never from raw req.body or query parameters.
+ *
+ * @param {string} reviewerId   - ID of the person taking the action.
+ * @param {string} requesterId  - ID of the person who created the request.
+ * @throws {AppError} FORBIDDEN if the IDs match.
+ */
+function assertNoSelfApproval(reviewerId, requesterId) {
+  if (!reviewerId || !requesterId) {
+    // Missing IDs are a programmer error, not an auth error. Fail closed.
+    throw Errors.Forbidden('Self-approval check: both reviewer and requester IDs are required.');
+  }
+  if (String(reviewerId) === String(requesterId)) {
+    throw Errors.Forbidden(
+      'Self-review is strictly prohibited. An independent reviewer must decide.'
+    );
+  }
+}
+
 module.exports = {
   ROLES,
   requireRole,
   requireAnyRole,
   requireInstitutionRole,
   requireSelf,
+  assertNoSelfApproval,
 };
