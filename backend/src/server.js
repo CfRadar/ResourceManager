@@ -11,11 +11,11 @@
  *   - index.js    → loads env, then calls startServer()
  *
  * Graceful shutdown (SIGTERM / SIGINT):
- *   1. Stop accepting new connections.
- *   2. Wait up to GRACEFUL_SHUTDOWN ms for in-flight requests to finish.
- *   3. Destroy the Knex connection pool.
- *   4. Exit 0.
- * If the timeout expires, exit 1 to prevent hanging in orchestrators.
+ *   1. Stop background scheduler cron jobs.
+ *   2. Stop accepting new connections.
+ *   3. Wait up to GRACEFUL_SHUTDOWN ms for in-flight requests to finish.
+ *   4. Destroy the Knex connection pool.
+ *   5. Exit 0.
  */
 
 const http = require('http');
@@ -23,6 +23,7 @@ const { createApp }   = require('./app');
 const env             = require('./config/env');
 const { TIMEOUT }     = require('./config/constants');
 const { destroyDb }   = require('./config/db');
+const { startScheduler, stopScheduler } = require('./services/scheduler');
 
 let server = null;
 
@@ -39,6 +40,11 @@ function startServer() {
       `[server] Express backend running → http://localhost:${env.PORT} ` +
       `(${env.NODE_ENV})`
     );
+
+    // Start background jobs if not in test environment
+    if (env.NODE_ENV !== 'test') {
+      startScheduler();
+    }
   });
 
   server.on('error', (err) => {
@@ -78,7 +84,10 @@ async function shutdown(signal) {
   timer.unref();
 
   try {
-    // 1. Stop accepting new connections; drain existing ones.
+    // 1. Stop background scheduler jobs.
+    stopScheduler();
+
+    // 2. Stop accepting new connections; drain existing ones.
     if (server) {
       await new Promise((resolve, reject) =>
         server.close((err) => (err ? reject(err) : resolve()))
@@ -86,7 +95,7 @@ async function shutdown(signal) {
       console.log('[server] HTTP server closed.');
     }
 
-    // 2. Destroy database pool.
+    // 3. Destroy database pool.
     await destroyDb();
 
     clearTimeout(timer);

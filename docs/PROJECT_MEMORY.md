@@ -42,12 +42,12 @@
 
 | Area | Status | Notes |
 |---|---|---|
-| **Backend API** | In progress | Steps 00–09 complete: modular architecture, all middleware, auth, institutions, facilities, memberships, partner linking, resources catalog, dynamic policy versioning, visibility filtering, confidential field redaction, availability computation, slot generation, blackout collision gating, availability polling, 6-check deterministic eligibility engine, access request lifecycle, central state machine transition engine, reviewer queue, FIFO waitlisting, concurrency-safe bookings & QR check-in, staff-operated service requests, missing-resource intake, candidate discovery, cross-institutional referrals, incident reporting & impartial rulings, fair-use token ledger, simulated billing/invoicing, and Excel/PDF/CSV exports. Step 10 pending. |
+| **Backend API** | Complete (100%) | Steps 00–10 complete: modular architecture, all middleware, auth, institutions, facilities, memberships, partner linking, resources catalog, dynamic policy versioning, visibility filtering, confidential field redaction, availability computation, slot generation, blackout collision gating, availability polling, 6-check deterministic eligibility engine, access request lifecycle, central state machine transition engine, reviewer queue, FIFO waitlisting, concurrency-safe bookings & QR check-in, staff-operated service requests, missing-resource intake, candidate discovery, cross-institutional referrals, incident reporting & impartial rulings, fair-use token ledger, simulated billing/invoicing, Excel/PDF/CSV exports, 7 scheduled background cron jobs, scheduler telemetry, SHA-256 tamper-evident hash chain verification, admin controls, in-app notifications, role dashboards, and AI proxy with fallback. |
 | **Frontend** | In progress | React + Vite + TypeScript initialized with basic App component on port 5173 |
 | **AI Service** | In progress | Steps 00–02 complete: FastAPI architecture, BaseSettings, X-Internal-Key header validation, Pydantic V2 contracts, and ReadOnlyRepository with psycopg v3 and fixture fallback. 23 pytest tests passing. |
 | **Database** | Migrations ready | 7 Knex migration files (001–007) cover all spec entities; BaseRepository done; seed ready. Run `npm run migrate:latest`. |
 | **Orchestration** | Working | Root Makefile with `make install`, `make backend`, `make frontend`, `make agent`, `make clear` |
-| **Tests** | In progress | 264 tests passing (241 backend tests across 16 test suites + 23 UviAge AI service tests); all green |
+| **Tests** | In progress | 295 tests passing (272 backend tests across 18 test suites + 23 UviAge AI service tests); 100% green |
 
 **How to run:**
 - Install: `make install`
@@ -496,7 +496,7 @@
 - [x] BKL-012 done in CHG-013 (Step 07: Bookings, Concurrency, Check-In, Geofencing, Signatures & Returns, 188 backend tests)
 - [x] BKL-013 done in CHG-014 (Step 08: Staff-Operated Services, Missing-Resource Needs & Referrals, 217 backend tests)
 - [x] BKL-014 done in CHG-015 (Step 09: Incidents, Tokens, Payments & PDF/Excel Exports, 241 backend tests)
-- [ ] BKL-015 (P0) Implement Step 10: Background Jobs and Audit Hash Chain | Source: Research/NodeBackend/10_BACKGROUND_JOBS_AND_AUDIT_HASH_CHAIN.md
+- [x] BKL-015 done in CHG-016 (Step 10: 7 scheduled cron jobs, scheduler telemetry, SHA-256 audit hash chain verification, admin control, notifications, dashboards, AI proxy, 272 backend tests)
 - [ ] BKL-003 (P0) Implement UviAge `/ai/parse-need` and `/ai/match-need` endpoints | Source: Research/01_BACKEND_API_SPEC.md
 - [ ] BKL-004 (P1) Implement React frontend navigation, layout, and resource catalog pages | Source: Research/02_FRONTEND_DESIGN_SPEC.md
 - [ ] BKL-005 (P1) Implement end-to-end booking reservation and approval workflow | Source: Research/01_BACKEND_API_SPEC.md

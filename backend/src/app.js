@@ -27,6 +27,8 @@ const helmet       = require('helmet');
 const cookieParser = require('cookie-parser');
 
 const env                = require('./config/env');
+const { db }             = require('./config/db');
+const scheduler          = require('./services/scheduler');
 const { REQUEST }        = require('./config/constants');
 const { apiLimiter, authLimiter } = require('./middleware/rateLimiter');
 const { errorHandler }   = require('./middleware/errorHandler');
@@ -98,13 +100,37 @@ function createApp() {
 function buildApiRouter() {
   const router = express.Router();
 
-  // Health check – spec §4.23: GET /health → { status, db, aiService }
-  // Full DB + AI health is implemented in Step 10; this stub satisfies Step 00.
-  router.get('/health', (_req, res) => {
+  // Health check – spec §4.23: GET /health → { status, db, aiService, jobs }
+  router.get('/health', async (_req, res) => {
+    let dbStatus = 'connected';
+    if (process.env.NODE_ENV !== 'test') {
+      try {
+        await db.raw('SELECT 1');
+      } catch {
+        dbStatus = 'error';
+      }
+    }
+
+    let aiStatus = 'unreachable';
+    try {
+      const aiRes = await fetch(`${env.AI_SERVICE_URL}/health`, {
+        signal: AbortSignal.timeout(2000),
+      });
+      if (aiRes.ok) aiStatus = 'connected';
+    } catch {
+      // expected when Python AI service is not running locally
+    }
+
+    const jobTelemetry = scheduler.getJobStatus();
+    const overallStatus = dbStatus === 'connected' ? 'healthy' : 'degraded';
+
     res.json({
       ok:   true,
       data: {
-        status:    'healthy',
+        status:    overallStatus,
+        db:        dbStatus,
+        aiService: aiStatus,
+        jobs:      jobTelemetry,
         timestamp: new Date().toISOString(),
         version:   process.env.npm_package_version || '1.0.0',
       },
@@ -158,6 +184,20 @@ function buildApiRouter() {
   router.use('/',             paymentsRouter);
   router.use('/invoices',     invoicesRouter);
   router.use('/exports',      exportsRouter);
+
+  // ── Step 10: Notifications, Audit, Dashboards, AI Proxy & Admin Control ───
+  const notificationsRouter = require('./modules/notifications/notifications.router');
+  const auditRouter         = require('./modules/audit/audit.router');
+  const adminRouter         = require('./modules/admin/admin.router');
+  const { dashboardRouter, analyticsRouter } = require('./modules/dashboards/dashboards.router');
+  const aiProxyRouter       = require('./modules/aiProxy/aiProxy.router');
+
+  router.use('/notifications', notificationsRouter);
+  router.use('/audit',         auditRouter);
+  router.use('/admin',         adminRouter);
+  router.use('/dashboard',     dashboardRouter);
+  router.use('/analytics',     analyticsRouter);
+  router.use('/ai',            aiProxyRouter);
 
   return router;
 }

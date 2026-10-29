@@ -1,25 +1,20 @@
 # Module: notifications
 
-In-app notification management (Spec §4.19).
+In-app notification management and delivery (Spec §4.19).
 
-**Implemented in:** Step 10 — Background Jobs & Audit Chain (notification dispatch)
+**Status:** Completed in Step 10 — Background Jobs & Audit Chain
 
 ## Events that create notifications
-Request submitted/needs info/approved/rejected/waitlisted, waitlist slot offered,
-booking reminder (24h + 1h before), overdue, return confirmed, incident
-created/updated/resolved, referral sent/responded, document/training expiring.
+Booking reminders (24h, 1h, 30m end), overdue return alerts, no-show warnings, waitlist slot offers, referral timeouts, document and training expirations, and incident updates.
 
-Email delivery: console logger in demo; SMTP/Resend adapter in P1.
-
-## Planned endpoints
+## Endpoints
 | Method | Path | Auth | Notes |
 |---|---|---|---|
-| GET  | `/api/v1/notifications` | Authed | In-app list (filter: ?unread=true) |
-| POST | `/api/v1/notifications/:id/read` | Authed | Mark read |
-| POST | `/api/v1/notifications/read-all` | Authed | Mark all read |
-| GET/PUT | `/api/v1/notifications/preferences` | Authed | Toggle per-event type (P1) |
+| GET  | `/api/v1/notifications` | Authed | In-app notification list (`?unread=true`, pagination) |
+| POST | `/api/v1/notifications/:id/read` | Authed | Mark single notification as read |
+| POST | `/api/v1/notifications/read-all` | Authed | Mark all user notifications as read |
 
-## Files (to be created in Step 10)
+## Implementation Files
 - `notifications.router.js`
 - `notifications.controller.js`
 - `notifications.service.js`
