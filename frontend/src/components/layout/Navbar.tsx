@@ -46,8 +46,17 @@ export function Navbar() {
                 isActive('/') ? 'bg-blue-50 text-blue-700 font-semibold' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
               }`}
             >
+              Home
+            </Link>
+
+            <Link
+              to="/discover"
+              className={`px-3 py-1.5 rounded-lg transition-colors flex items-center gap-1.5 ${
+                isActive('/discover') ? 'bg-blue-50 text-blue-700 font-semibold' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
+              }`}
+            >
               <Compass className="w-4 h-4" />
-              Discover
+              AI Discovery
             </Link>
 
             <Link

@@ -43,7 +43,7 @@
 | Area | Status | Notes |
 |---|---|---|
 | **Backend API** | Complete (100%) | Steps 00–10 complete: modular architecture, all middleware, auth, institutions, facilities, memberships, partner linking, resources catalog, dynamic policy versioning, visibility filtering, confidential field redaction, availability computation, slot generation, blackout collision gating, availability polling, 6-check deterministic eligibility engine, access request lifecycle, central state machine transition engine, reviewer queue, FIFO waitlisting, concurrency-safe bookings & QR check-in, staff-operated service requests, missing-resource intake, candidate discovery, cross-institutional referrals, incident reporting & impartial rulings, fair-use token ledger, simulated billing/invoicing, Excel/PDF/CSV exports, 7 scheduled background cron jobs, scheduler telemetry, SHA-256 tamper-evident hash chain verification, admin controls, in-app notifications, role dashboards, and AI proxy with fallback. |
-| **Frontend** | In progress | React 19 + Vite + TypeScript. Steps 00–02 complete: React Router 7, TanStack Query, Axios JWT interceptors, Role switcher, Auth/Toast contexts, Auth/Role guards, Tailwind v4 design tokens, shared components, LoginPage with sample credential hints, RegisterPage with OTP routing, VerifyOtpPage with auto-fill demo banner & 6-digit inputs, and JudgeToolbar with 1-click persona switching. Builds cleanly with 0 errors. |
+| **Frontend** | In progress | React 19 + Vite + TypeScript. Steps 00–03 complete: React Router 7, TanStack Query, Axios JWT interceptors, Role switcher, Auth/Toast contexts, Auth/Role guards, Tailwind v4 design tokens, shared components, LoginPage with sample credential hints, RegisterPage with OTP routing, VerifyOtpPage with auto-fill demo banner & 6-digit inputs, JudgeToolbar with 1-click persona switching, LandingPage with NLP search & 3-step timeline, DiscoverPage with filter sidebar & parsed keyword chips, ResourceCard with match reasons popover & eligibility preview. Builds cleanly with 0 errors. |
 | **AI Service** | Complete (100%) | Steps 00–09 complete: FastAPI architecture, BaseSettings, X-Internal-Key validation, Pydantic V2 contracts, ReadOnlyRepository with psycopg v3 and fixtures, NeedParser (/ai/parse-need), VectorIndexer (all-MiniLM-L6-v2), BM25Okapi deterministic fallback matcher (/ai/match-need), index rebuild (/ai/reindex) with ISO timestamps, objective incident summary drafting (/ai/incident-summary), Express circuit breaker & anti-hallucination sanitization, resource update webhooks, latency benchmarks, and concurrency stress testing. 55 pytest tests passing. |
 | **Database** | Migrations ready | 7 Knex migration files (001–007) cover all spec entities; BaseRepository done; seed ready. Run `npm run migrate:latest`. |
 | **Orchestration** | Working | Root Makefile with `make install`, `make backend`, `make frontend`, `make agent`, `make clear` |
@@ -83,6 +83,22 @@
 ---
 
 ## 6. Change Log (newest first)
+
+### CHG-023 | 2026-10-29 | React Frontend Step 03 — Landing Page, AI Discovery, Filter Sidebar & Resource Cards
+- **Requested by:** User (BKL-004).
+- **Skills used:** `project-memory-workflow`
+- **What changed:**
+  - `frontend/src/api/discovery.api.ts` — Created API client and interfaces for `searchResources`, `matchNeedWithAi`, `parseNeed`, and `ResourceMatch`.
+  - `frontend/src/components/discovery/ResourceCard.tsx` — Built comprehensive equipment card with match label badge (`AVAILABLE_LISTING`, `POTENTIAL_MATCH`, `INACTIVE`), "Why this match?" reasoning modal dialog, token cost badge, and eligibility preview.
+  - `frontend/src/features/discovery/DiscoverPage.tsx` — Built multi-criteria search results page with filter sidebar (discipline, access mode, max tokens, eligibility toggle), parsed requirements chips with deletion, `KEYWORD_FALLBACK` alert banner, and empty-match guidance card linking to missing-resource submission.
+  - `frontend/src/features/discovery/LandingPage.tsx` — Implemented Hero headline, natural language need search bar with auto-routing to `/discover?q=...&ai=true`, quick category chips, "How The Network Works" 3-step deterministic lifecycle, and connected partner institutions banner.
+  - `frontend/src/app/router.tsx` — Mounted `/discover` route.
+  - `frontend/src/components/layout/Navbar.tsx` — Added direct navigation link to `/discover` (AI Discovery).
+  - `context/03_IMPLEMENTATION_STATUS_TRACKER.md` — Marked Frontend Step 03 **DONE** (4/11 complete, ~36%).
+- **Why:** Enable researchers to describe complex lab needs in natural language, explore matching equipment envelopes across partner institutions, and verify eligibility per Spec §5.1 & §5.2.
+- **Verification:** Ran `cd frontend; npm.cmd run build` → `tsc -b && vite build` built in 364ms with **0 errors**; ran `cd backend; npm.cmd test` → **280/280 passed** across 19 suites; ran `cd UviAge; py -m uv run pytest` → **55/55 passed** across 7 suites.
+- **Commit:** Pending.
+- **Follow-ups:** Proceed to Step 04: Resource Detail & Eligibility Check (`Research/Frontend/04_RESOURCE_DETAIL_AND_ELIGIBILITY_CHECK.md`).
 
 ### CHG-022 | 2026-10-29 | React Frontend Step 02 — Authentication, Virtual OTP Verification & Judge Quick Login
 - **Requested by:** User (BKL-004).

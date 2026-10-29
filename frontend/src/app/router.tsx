@@ -4,6 +4,7 @@ import { AuthGuard } from './guards/AuthGuard';
 import { RoleGuard } from './guards/RoleGuard';
 
 import { LandingPage } from '../features/discovery/LandingPage';
+import { DiscoverPage } from '../features/discovery/DiscoverPage';
 import { ResourcesPage } from '../features/resources/ResourcesPage';
 import { ResourceDetailPage } from '../features/resources/ResourceDetailPage';
 import { LoginPage } from '../features/auth/LoginPage';
@@ -24,6 +25,7 @@ export const router = createBrowserRouter([
     children: [
       // Public Discovery & Catalog Routes
       { index: true, element: <LandingPage /> },
+      { path: 'discover', element: <DiscoverPage /> },
       { path: 'resources', element: <ResourcesPage /> },
       { path: 'resources/:id', element: <ResourceDetailPage /> },
 
