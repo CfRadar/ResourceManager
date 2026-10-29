@@ -24,6 +24,9 @@ import { CheckInDeskPage } from '../features/manage/CheckInDeskPage';
 import { CoordinatorDeskPage } from '../features/coordinate/CoordinatorDeskPage';
 import { ServiceTrackingPage } from '../features/services/ServiceTrackingPage';
 import { MissingResourceNeedPage } from '../features/needs/MissingResourceNeedPage';
+import { IncidentReportPage } from '../features/incidents/IncidentReportPage';
+import { ManagerIncidentDossierPage } from '../features/incidents/ManagerIncidentDossierPage';
+import { TransactionHistoryPage } from '../features/history/TransactionHistoryPage';
 import { AdminDashboardPage } from '../features/admin/AdminDashboardPage';
 import { NotFoundPage } from '../features/common/NotFoundPage';
 
@@ -201,9 +204,75 @@ export const router = createBrowserRouter([
         ),
       },
 
+      // Incident Filing & Management Workflows
+      {
+        path: 'incidents/new',
+        element: (
+          <AuthGuard>
+            <IncidentReportPage />
+          </AuthGuard>
+        ),
+      },
+      {
+        path: 'me/incidents/new',
+        element: (
+          <AuthGuard>
+            <IncidentReportPage />
+          </AuthGuard>
+        ),
+      },
+      {
+        path: 'incidents/:id',
+        element: (
+          <AuthGuard>
+            <ManagerIncidentDossierPage />
+          </AuthGuard>
+        ),
+      },
+      {
+        path: 'manage/incidents/:id',
+        element: (
+          <AuthGuard>
+            <RoleGuard allowedRoles={['MANAGER', 'ADMIN']}>
+              <ManagerIncidentDossierPage />
+            </RoleGuard>
+          </AuthGuard>
+        ),
+      },
+
+      // Universal Immutable Transaction History Receipt
+      {
+        path: 'history/:type/:id',
+        element: (
+          <AuthGuard>
+            <TransactionHistoryPage />
+          </AuthGuard>
+        ),
+      },
+
       // Administrator Governance
       {
+        path: 'admin',
+        element: (
+          <AuthGuard>
+            <RoleGuard allowedRoles={['ADMIN']}>
+              <AdminDashboardPage />
+            </RoleGuard>
+          </AuthGuard>
+        ),
+      },
+      {
         path: 'admin/dashboard',
+        element: (
+          <AuthGuard>
+            <RoleGuard allowedRoles={['ADMIN']}>
+              <AdminDashboardPage />
+            </RoleGuard>
+          </AuthGuard>
+        ),
+      },
+      {
+        path: 'admin/audit',
         element: (
           <AuthGuard>
             <RoleGuard allowedRoles={['ADMIN']}>
