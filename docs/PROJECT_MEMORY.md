@@ -116,7 +116,7 @@
   - `context/03_IMPLEMENTATION_STATUS_TRACKER.md` — Marked Step 07 complete (188 backend tests passing).
 - **Why:** Provide full concurrency-safe booking lifecycle, physical check-in/out, soft geofencing, virtual electronic signatures, condition diffing, and iCal exports per Spec §4.11 and §4.12.
 - **Verification:** Ran `npm test` → **188/188 tests passing across 12 test suites**; ran `uv run pytest` in UviAge → **23/23 tests passing**; ran `npm run build` in frontend → **0 errors**.
-- **Commit:** Pending.
+- **Commit:** `0a1de78`.
 - **Follow-ups:** Step 08: Service Requests, Referrals, Incidents & Dispute Resolution (`Research/NodeBackend/08_SERVICES_INCIDENTS_AND_DISPUTES.md`).
 
 ### CHG-012 | 2026-10-29 | Created Agent Context Hub (`context/`)
