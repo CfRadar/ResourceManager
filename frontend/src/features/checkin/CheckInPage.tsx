@@ -526,3 +526,4 @@ export function CheckInPage() {
     </div>
   );
 }
+

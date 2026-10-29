@@ -18,7 +18,9 @@ import { BookingDetailPage } from '../features/requester/BookingDetailPage';
 import { CheckInPage } from '../features/checkin/CheckInPage';
 import { CheckOutPage } from '../features/checkin/CheckOutPage';
 import { ReviewQueuePage } from '../features/manage/ReviewQueuePage';
+import { ReviewDetailPage } from '../features/manage/ReviewDetailPage';
 import { ManagerDashboardPage } from '../features/manage/ManagerDashboardPage';
+import { CheckInDeskPage } from '../features/manage/CheckInDeskPage';
 import { CoordinatorDeskPage } from '../features/coordinate/CoordinatorDeskPage';
 import { AdminDashboardPage } from '../features/admin/AdminDashboardPage';
 import { NotFoundPage } from '../features/common/NotFoundPage';
@@ -103,21 +105,41 @@ export const router = createBrowserRouter([
 
       // Facility Manager Workflows
       {
+        path: 'manage/dashboard',
+        element: (
+          <AuthGuard>
+            <RoleGuard allowedRoles={['MANAGER', 'ADMIN']}>
+              <ManagerDashboardPage />
+            </RoleGuard>
+          </AuthGuard>
+        ),
+      },
+      {
         path: 'manage/queue',
         element: (
           <AuthGuard>
-            <RoleGuard allowedRoles={['MANAGER']}>
+            <RoleGuard allowedRoles={['MANAGER', 'ADMIN']}>
               <ReviewQueuePage />
             </RoleGuard>
           </AuthGuard>
         ),
       },
       {
-        path: 'manage/dashboard',
+        path: 'manage/queue/:id',
         element: (
           <AuthGuard>
-            <RoleGuard allowedRoles={['MANAGER']}>
-              <ManagerDashboardPage />
+            <RoleGuard allowedRoles={['MANAGER', 'ADMIN']}>
+              <ReviewDetailPage />
+            </RoleGuard>
+          </AuthGuard>
+        ),
+      },
+      {
+        path: 'manage/checkin',
+        element: (
+          <AuthGuard>
+            <RoleGuard allowedRoles={['MANAGER', 'ADMIN']}>
+              <CheckInDeskPage />
             </RoleGuard>
           </AuthGuard>
         ),
