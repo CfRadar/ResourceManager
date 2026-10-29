@@ -121,7 +121,7 @@
   - `context/03_IMPLEMENTATION_STATUS_TRACKER.md` — Updated Step 08 to **DONE** (217 backend tests passing across 14 suites).
 - **Why:** Provide full staff-operated service lifecycle, missing-resource intake, AI/keyword candidate matching, and privacy-preserving cross-institutional referrals per Spec §4.13 and §4.14.
 - **Verification:** Ran `cd backend; npm.cmd test` → **217/217 tests passing across 14 test suites**; ran `cd frontend; npm.cmd run build` → **0 errors**.
-- **Commit:** Pending.
+- **Commit:** `7099e6c`
 - **Follow-ups:** Step 09: Incidents, Tokens, Payments & PDF/Excel Exports (`Research/NodeBackend/09_INCIDENTS_TOKENS_PAYMENTS_EXPORTS.md`).
 
 ### CHG-013 | 2026-10-29 | Step 07 — Bookings, Concurrency, Check-In & Physical Returns
