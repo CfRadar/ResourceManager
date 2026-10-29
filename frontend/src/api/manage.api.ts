@@ -445,3 +445,4 @@ export async function markNoShow(bookingId: string): Promise<void> {
     }
   }
 }
+

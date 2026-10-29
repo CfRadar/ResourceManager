@@ -55,3 +55,4 @@ export const EligibilityIndicators: React.FC<EligibilityIndicatorsProps> = ({ in
     </div>
   );
 };
+

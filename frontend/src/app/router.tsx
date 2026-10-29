@@ -22,6 +22,8 @@ import { ReviewDetailPage } from '../features/manage/ReviewDetailPage';
 import { ManagerDashboardPage } from '../features/manage/ManagerDashboardPage';
 import { CheckInDeskPage } from '../features/manage/CheckInDeskPage';
 import { CoordinatorDeskPage } from '../features/coordinate/CoordinatorDeskPage';
+import { ServiceTrackingPage } from '../features/services/ServiceTrackingPage';
+import { MissingResourceNeedPage } from '../features/needs/MissingResourceNeedPage';
 import { AdminDashboardPage } from '../features/admin/AdminDashboardPage';
 import { NotFoundPage } from '../features/common/NotFoundPage';
 
@@ -102,6 +104,38 @@ export const router = createBrowserRouter([
           </AuthGuard>
         ),
       },
+      {
+        path: 'need',
+        element: (
+          <AuthGuard>
+            <MissingResourceNeedPage />
+          </AuthGuard>
+        ),
+      },
+      {
+        path: 'needs/new',
+        element: (
+          <AuthGuard>
+            <MissingResourceNeedPage />
+          </AuthGuard>
+        ),
+      },
+      {
+        path: 'services/:id',
+        element: (
+          <AuthGuard>
+            <ServiceTrackingPage />
+          </AuthGuard>
+        ),
+      },
+      {
+        path: 'me/services/:id',
+        element: (
+          <AuthGuard>
+            <ServiceTrackingPage />
+          </AuthGuard>
+        ),
+      },
 
       // Facility Manager Workflows
       {
@@ -147,10 +181,20 @@ export const router = createBrowserRouter([
 
       // Institutional Coordinator Workflows
       {
+        path: 'coordinate',
+        element: (
+          <AuthGuard>
+            <RoleGuard allowedRoles={['COORDINATOR', 'ADMIN']}>
+              <CoordinatorDeskPage />
+            </RoleGuard>
+          </AuthGuard>
+        ),
+      },
+      {
         path: 'coordinate/desk',
         element: (
           <AuthGuard>
-            <RoleGuard allowedRoles={['COORDINATOR']}>
+            <RoleGuard allowedRoles={['COORDINATOR', 'ADMIN']}>
               <CoordinatorDeskPage />
             </RoleGuard>
           </AuthGuard>

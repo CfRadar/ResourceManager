@@ -77,3 +77,4 @@ export const ScheduleTimeline: React.FC<ScheduleTimelineProps> = ({ events }) =>
     </div>
   );
 };
+
