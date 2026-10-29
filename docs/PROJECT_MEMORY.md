@@ -98,7 +98,7 @@
   - `context/03_IMPLEMENTATION_STATUS_TRACKER.md` — Marked Python AI Service 10/10 **DONE (100%)**.
 - **Why:** Complete the AI subsystem per Spec §4.24, §6.3, and §6.4, ensuring non-blocking resiliency, fast degradation to deterministic search, and zero hallucinations.
 - **Verification:** Ran `cd UviAge; py -m uv run pytest -v` → **55/55 passed** across 7 test suites; ran `cd backend; npm.cmd test` → **280/280 passed** across 19 test suites; ran `cd frontend; npm.cmd run build` → **0 errors**.
-- **Commit:** Pending.
+- **Commit:** 3091fab
 - **Follow-ups:** Proceed to Frontend Step 02: Authentication & Judge Login (`Research/Frontend/02_AUTHENTICATION_AND_JUDGE_LOGIN.md`).
 
 ### CHG-020 | 2026-10-29 | React Frontend Steps 00 & 01 — Architecture, Routing, Providers, Design Tokens & Shared Components
