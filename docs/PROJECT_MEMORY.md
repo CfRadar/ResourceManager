@@ -44,10 +44,10 @@
 |---|---|---|
 | **Backend API** | Complete (100%) | Steps 00–10 complete: modular architecture, all middleware, auth, institutions, facilities, memberships, partner linking, resources catalog, dynamic policy versioning, visibility filtering, confidential field redaction, availability computation, slot generation, blackout collision gating, availability polling, 6-check deterministic eligibility engine, access request lifecycle, central state machine transition engine, reviewer queue, FIFO waitlisting, concurrency-safe bookings & QR check-in, staff-operated service requests, missing-resource intake, candidate discovery, cross-institutional referrals, incident reporting & impartial rulings, fair-use token ledger, simulated billing/invoicing, Excel/PDF/CSV exports, 7 scheduled background cron jobs, scheduler telemetry, SHA-256 tamper-evident hash chain verification, admin controls, in-app notifications, role dashboards, and AI proxy with fallback. |
 | **Frontend** | In progress | React + Vite + TypeScript initialized with basic App component on port 5173 |
-| **AI Service** | In progress | Steps 00–06 complete: FastAPI architecture, BaseSettings, X-Internal-Key validation, Pydantic V2 contracts, ReadOnlyRepository with psycopg v3 and fixtures, NeedParser (/ai/parse-need), VectorIndexer (all-MiniLM-L6-v2), BM25Okapi deterministic fallback matcher (/ai/match-need), and in-memory index rebuild (/ai/reindex). 42 pytest tests passing. |
+| **AI Service** | In progress | Steps 00–07 complete: FastAPI architecture, BaseSettings, X-Internal-Key validation, Pydantic V2 contracts, ReadOnlyRepository with psycopg v3 and fixtures, NeedParser (/ai/parse-need), VectorIndexer (all-MiniLM-L6-v2), BM25Okapi deterministic fallback matcher (/ai/match-need), index rebuild (/ai/reindex), and objective incident summary drafting (/ai/incident-summary). 49 pytest tests passing. |
 | **Database** | Migrations ready | 7 Knex migration files (001–007) cover all spec entities; BaseRepository done; seed ready. Run `npm run migrate:latest`. |
 | **Orchestration** | Working | Root Makefile with `make install`, `make backend`, `make frontend`, `make agent`, `make clear` |
-| **Tests** | In progress | 314 tests passing (272 backend tests across 18 test suites + 42 UviAge AI service tests); 100% green |
+| **Tests** | In progress | 321 tests passing (272 backend tests across 18 test suites + 49 UviAge AI service tests); 100% green |
 
 **How to run:**
 - Install: `make install`
@@ -83,6 +83,26 @@
 ---
 
 ## 6. Change Log (newest first)
+
+### CHG-019 | 2026-10-29 | UviAge Step 07 — Objective Incident Summary Drafting (/ai/incident-summary)
+- **Requested by:** User — "now do this file" (BKL-016).
+- **Skills used:** `project-memory-workflow`
+- **What changed:**
+  - `UviAge/incidents/summarizer.py` — Implemented `IncidentSummarizer` and `draft_incident_summary()` extracting:
+    - `factsFromRecords`: Booking details, before/after condition reports, accessory condition diffs (e.g. PEI sheet EXCELLENT → SCRATCHED), and geofence verification status.
+    - `unverifiedClaims`: Reporter description and attributed party statements without accusatory framing.
+    - `missingInfo`: Evidential gaps (missing post-use condition reports, absent photos, pending statements).
+    - `sources`: Explicit list of referenced record, report, and photo IDs.
+    - `summary`: Neutral narrative strictly free of forbidden fault/liability terms (`guilty`, `liable`, `at fault`, `negligent`, `careless`, `breach`).
+    - `disclaimer`: "Draft summary for coordinator review. Does not assign fault or liability."
+  - `UviAge/schemas.py` — Enhanced `IncidentSummaryRequest` with validator supporting both `incidentId` query and inline `{ incident, notes }` payloads from Express.
+  - `UviAge/main.py` — Mounted `POST /ai/incident-summary` on `ai_router` protected by `verify_internal_key`.
+  - `UviAge/tests/test_incidents.py` — 7 tests covering facts extraction, claims attribution, neutral language enforcement, gap detection, and HTTP 200, 403, 404, 422 status codes.
+  - `context/03_IMPLEMENTATION_STATUS_TRACKER.md` — Marked Step 07 **DONE** (8/10 steps complete, 49 pytest tests passing).
+- **Why:** Provide objective, non-accusatory incident dossier synthesis for impartial facility manager and coordinator review per Spec §4.16, §6.2, and §6.5.
+- **Verification:** Ran `cd UviAge; py -m uv run pytest` → **49/49 tests passing** (100% green); ran `cd backend; npm.cmd test` → **272/272 tests passing across 18 test suites**; ran `cd frontend; npm.cmd run build` → **0 errors**.
+- **Commit:** Pending.
+- **Follow-ups:** Proceed to Frontend Step 00/01 or Python AI service Step 08/09.
 
 ### CHG-018 | 2026-10-29 | UviAge Steps 04, 05 & 06 — Vector Indexing, Semantic Matching, Re-ranking & BM25 Fallback
 - **Requested by:** User — "yes" (BKL-003).
@@ -597,7 +617,8 @@
 - [x] BKL-013 done in CHG-014 (Step 08: Staff-Operated Services, Missing-Resource Needs & Referrals, 217 backend tests)
 - [x] BKL-014 done in CHG-015 (Step 09: Incidents, Tokens, Payments & PDF/Excel Exports, 241 backend tests)
 - [x] BKL-015 done in CHG-016 (Step 10: 7 scheduled cron jobs, scheduler telemetry, SHA-256 audit hash chain verification, admin control, notifications, dashboards, AI proxy, 272 backend tests)
-- [ ] BKL-003 (P0) Implement UviAge `/ai/parse-need` (done in CHG-017) and `/ai/match-need` endpoints | Source: Research/01_BACKEND_API_SPEC.md
+- [x] BKL-003 done in CHG-017 (/ai/parse-need) and CHG-018 (/ai/match-need, Steps 04-06)
+- [x] BKL-016 done in CHG-019 (Step 07: /ai/incident-summary objective drafting, 49 UviAge tests)
 - [ ] BKL-004 (P1) Implement React frontend navigation, layout, and resource catalog pages | Source: Research/02_FRONTEND_DESIGN_SPEC.md
 - [ ] BKL-005 (P1) Implement end-to-end booking reservation and approval workflow | Source: Research/01_BACKEND_API_SPEC.md
 

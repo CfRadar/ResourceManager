@@ -6,7 +6,7 @@ backend API specification and Step 01 blueprint.
 
 from enum import Enum
 from typing import Any, Dict, List, Optional, Union
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, model_validator
 from pydantic.alias_generators import to_camel
 
 
@@ -188,7 +188,17 @@ class MatchNeedResponse(BaseSchema):
 class IncidentSummaryRequest(BaseSchema):
     """Request schema for drafting an objective incident dossier summary."""
 
-    incident_id: str = Field(..., alias="incidentId", description="Incident ID to summarize")
+    incident_id: Optional[str] = Field(default=None, alias="incidentId", description="Incident ID to summarize")
+    incident: Optional[Dict[str, Any]] = Field(default=None, description="Inline incident object")
+    notes: Optional[List[Dict[str, Any]]] = Field(default=None, description="Inline incident notes")
+
+    @model_validator(mode="after")
+    def validate_id_or_incident(self):
+        if not self.incident_id and self.incident:
+            self.incident_id = self.incident.get("id")
+        if not self.incident_id and not self.incident:
+            raise ValueError("Either incidentId or incident object must be provided.")
+        return self
 
 
 class IncidentSummaryResponse(BaseSchema):

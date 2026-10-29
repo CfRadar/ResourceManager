@@ -2,13 +2,14 @@
 
 from contextlib import asynccontextmanager
 from typing import Any, Dict, List, Set
-from fastapi import APIRouter, Depends, FastAPI
+from fastapi import APIRouter, Depends, FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 
 from auth import verify_internal_key
 from config import get_settings
 from matching import embedder, fallback
 from matching.rerank import rerank_candidates
+from incidents.summarizer import draft_incident_summary
 from parsing.need_parser import parse_need_text
 import repository
 from schemas import (
@@ -17,6 +18,8 @@ from schemas import (
     ParseNeedRequest,
     ParseNeedResponse,
     ResourceMatch,
+    IncidentSummaryRequest,
+    IncidentSummaryResponse,
 )
 
 settings = get_settings()
@@ -237,6 +240,32 @@ async def reindex_endpoint():
         "model_ready": embedder.vector_indexer.is_ready(),
     }
 
+
+
+@ai_router.post("/incident-summary", response_model=IncidentSummaryResponse)
+async def incident_summary_endpoint(
+    payload: IncidentSummaryRequest,
+) -> IncidentSummaryResponse:
+    """Generates an objective, non-accusatory draft summary of an incident dossier.
+
+    Spec §4.16 & §6.5 (Step 07).
+    """
+    context = None
+    if payload.incident:
+        context = dict(payload.incident)
+        if payload.notes:
+            context["notes"] = payload.notes
+    elif payload.incident_id:
+        context = repository.get_incident_context(payload.incident_id)
+
+    if not context:
+        raise HTTPException(
+            status_code=404,
+            detail=f"Incident dossier '{payload.incident_id}' not found.",
+        )
+
+    summary_data = draft_incident_summary(context)
+    return IncidentSummaryResponse(**summary_data)
 
 app.include_router(ai_router)
 
