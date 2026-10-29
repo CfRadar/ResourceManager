@@ -1,6 +1,6 @@
 # Live Implementation Status Tracker
 
-> **LAST UPDATED:** 2026-10-29 (Frontend Step 03 Complete — Landing & AI Discovery Done)
+> **LAST UPDATED:** 2026-10-29 (Frontend Step 04 Complete — Resource Detail & Eligibility Check Done)
 > **RULE:** Any agent completing a blueprint step MUST update this tracker alongside `docs/PROJECT_MEMORY.md`.
 
 ---
@@ -11,7 +11,7 @@
 | :--- | :--- | :---: | :---: | :---: | :---: | :---: |
 | **Node.js Express Backend** | `Research/NodeBackend/` | **11 / 11** | 0 | **0** | **280 passed** (19 suites) | **100%** |
 | **Python AI Service (UviAge)** | `Research/PythonBackend/` | **10 / 10** | **0** | **0** | **55 passed** (7 suites) | **100%** |
-| **React Frontend** | `Research/Frontend/` | **4 / 11** | 0 | **7** | Build verified (0 errors) | **~36%** |
+| **React Frontend** | `Research/Frontend/` | **5 / 11** | 0 | **6** | Build verified (0 errors) | **~45%** |
 
 ---
 
@@ -62,7 +62,7 @@
 | **01** | `01_DESIGN_SYSTEM_AND_SHARED_COMPONENTS.md` | **DONE** | Tailwind v4 tokens, StatusBadge (15 states), ReasonDialog, DemoTag, AiSuggestionBadge, AuditIntegrityBadge, DemoBanner, AppLayout | Proceed to Step 02 |
 | **02** | `02_AUTHENTICATION_AND_JUDGE_LOGIN.md` | **DONE** | LoginPage with credential fill, RegisterPage with OTP routing, VerifyOtpPage with auto-fill demo banner & 6-digit inputs, JudgeToolbar with 1-click persona switching | Proceed to Step 03 |
 | **03** | `03_LANDING_AND_AI_DISCOVERY.md` | **DONE** | LandingPage with NLP search & 3-step timeline, DiscoverPage with filter sidebar & parsed keyword chips, ResourceCard with match reasoning popover & eligibility preview, fallback handling | Proceed to Step 04 |
-| **04** | `04_RESOURCE_DETAIL_AND_ELIGIBILITY_CHECK.md` | ⏳ **PENDING** | Not started | Build Detail view & Eligibility checklist |
+| **04** | `04_RESOURCE_DETAIL_AND_ELIGIBILITY_CHECK.md` | **DONE** | ResourceDetailPage with risk tag, access mode selector, tabbed switcher, EligibilityChecklist (6 checks), PolicySummaryCard, ConfidentialInstructionsCard | Proceed to Step 05 |
 | **05** | `05_DYNAMIC_REQUEST_WIZARD.md` | ⏳ **PENDING** | Not started | Build 5-step policy wizard & SlotPicker |
 | **06** | `06_REQUESTER_DASHBOARD_AND_BOOKINGS.md` | ⏳ **PENDING** | Not started | Build Requester Dashboard & countdowns |
 | **07** | `07_CHECKIN_CHECKOUT_AND_SIGNATURE_PAD.md` | ⏳ **PENDING** | Not started | Build Condition diffs & SignaturePad |
@@ -77,5 +77,5 @@
 ## 5. Immediate Next Steps / Implementation Roadmap
 
 The next immediate implementation choices are:
-1. **React Frontend Step 03 (`03_LANDING_AND_AI_DISCOVERY.md`):** Build Hero natural language search bar, AI capability query integration, and dynamic Equipment Catalog cards.
-2. **React Frontend Step 04 (`04_RESOURCE_DETAIL_AND_ELIGIBILITY_CHECK.md`):** Build detailed equipment specification view and deterministic 6-check eligibility checklist.
+1. **React Frontend Step 05 (`05_DYNAMIC_REQUEST_WIZARD.md`):** Build 5-step interactive request wizard (`/resources/:id/request`), weekly calendar `SlotPicker`, document uploads, and backend request dispatch.
+2. **React Frontend Step 06 (`06_REQUESTER_DASHBOARD_AND_BOOKINGS.md`):** Build Requester Dashboard, booking tracker, waitlist positions, and live countdowns.

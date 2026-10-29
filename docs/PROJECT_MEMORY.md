@@ -43,7 +43,7 @@
 | Area | Status | Notes |
 |---|---|---|
 | **Backend API** | Complete (100%) | Steps 00–10 complete: modular architecture, all middleware, auth, institutions, facilities, memberships, partner linking, resources catalog, dynamic policy versioning, visibility filtering, confidential field redaction, availability computation, slot generation, blackout collision gating, availability polling, 6-check deterministic eligibility engine, access request lifecycle, central state machine transition engine, reviewer queue, FIFO waitlisting, concurrency-safe bookings & QR check-in, staff-operated service requests, missing-resource intake, candidate discovery, cross-institutional referrals, incident reporting & impartial rulings, fair-use token ledger, simulated billing/invoicing, Excel/PDF/CSV exports, 7 scheduled background cron jobs, scheduler telemetry, SHA-256 tamper-evident hash chain verification, admin controls, in-app notifications, role dashboards, and AI proxy with fallback. |
-| **Frontend** | In progress | React 19 + Vite + TypeScript. Steps 00–03 complete: React Router 7, TanStack Query, Axios JWT interceptors, Role switcher, Auth/Toast contexts, Auth/Role guards, Tailwind v4 design tokens, shared components, LoginPage with sample credential hints, RegisterPage with OTP routing, VerifyOtpPage with auto-fill demo banner & 6-digit inputs, JudgeToolbar with 1-click persona switching, LandingPage with NLP search & 3-step timeline, DiscoverPage with filter sidebar & parsed keyword chips, ResourceCard with match reasons popover & eligibility preview. Builds cleanly with 0 errors. |
+| **Frontend** | In progress | React 19 + Vite + TypeScript. Steps 00–04 complete: React Router 7, TanStack Query, Axios JWT interceptors, Role switcher, Auth/Toast contexts, Auth/Role guards, Tailwind v4 design tokens, shared components, LoginPage with sample credential hints, RegisterPage with OTP routing, VerifyOtpPage with auto-fill demo banner & 6-digit inputs, JudgeToolbar with 1-click persona switching, LandingPage with NLP search & 3-step timeline, DiscoverPage with filter sidebar & parsed keyword chips, ResourceCard with match reasons popover & eligibility preview, ResourceDetailPage with risk tag, access mode selector, tabbed switcher, EligibilityChecklist (6 checks), PolicySummaryCard, and ConfidentialInstructionsCard. Builds cleanly with 0 errors. |
 | **AI Service** | Complete (100%) | Steps 00–09 complete: FastAPI architecture, BaseSettings, X-Internal-Key validation, Pydantic V2 contracts, ReadOnlyRepository with psycopg v3 and fixtures, NeedParser (/ai/parse-need), VectorIndexer (all-MiniLM-L6-v2), BM25Okapi deterministic fallback matcher (/ai/match-need), index rebuild (/ai/reindex) with ISO timestamps, objective incident summary drafting (/ai/incident-summary), Express circuit breaker & anti-hallucination sanitization, resource update webhooks, latency benchmarks, and concurrency stress testing. 55 pytest tests passing. |
 | **Database** | Migrations ready | 7 Knex migration files (001–007) cover all spec entities; BaseRepository done; seed ready. Run `npm run migrate:latest`. |
 | **Orchestration** | Working | Root Makefile with `make install`, `make backend`, `make frontend`, `make agent`, `make clear` |
@@ -83,6 +83,22 @@
 ---
 
 ## 6. Change Log (newest first)
+
+### CHG-024 | 2026-10-29 | React Frontend Step 04 — Resource Detail View & Real-Time Eligibility Verification
+- **Requested by:** User (BKL-004).
+- **Skills used:** `project-memory-workflow`
+- **What changed:**
+  - `frontend/src/api/resources.api.ts` — Created API client and interfaces for `getResourceById` and `checkEligibility` (`POST /api/v1/resources/:id/eligibility-check`).
+  - `frontend/src/components/feedback/EligibilityChecklist.tsx` — Built 6-point deterministic status checklist (`membership_verified`, `user_group_allowed`, `training`, `documents`, `fair_use`, `slot_free`) with status badges and contextual action buttons.
+  - `frontend/src/components/resources/PolicySummaryCard.tsx` — Human-readable policy breakdown (fair-use limits, advance notice, cancellation threshold, authorized user cohorts, prohibited activities).
+  - `frontend/src/components/resources/ConfidentialInstructionsCard.tsx` — Locked confidential credentials card showing security lockout for non-booked users and full credentials upon confirmed booking.
+  - `frontend/src/features/resources/ResourceDetailPage.tsx` — Equipment header with risk level tag, access mode selector with disabled styling for unsupported modes, tabbed switcher (`overview`, `specs`, `policy`, `availability`, `confidential`), live eligibility check, and sticky bottom action bar.
+  - `context/03_IMPLEMENTATION_STATUS_TRACKER.md` — Marked Frontend Step 04 **DONE** (5/11 complete, ~45%).
+- **Why:** Enable researchers to inspect lab instrument specifications, select compliant access modes, verify live eligibility criteria deterministically, and view human-readable policy rules before initiating access requests per Spec §5.3.
+- **Verification:** Ran `cd frontend; npm.cmd run build` → `tsc -b && vite build` built in 502ms with **0 errors**; ran `cd backend; npm.cmd test` → **280/280 passed** across 19 suites; ran `cd UviAge; py -m uv run pytest` → **55/55 passed** across 7 suites.
+- **Commit:** pending
+- **Follow-ups:** Proceed to Step 05: Dynamic Request Wizard (`Research/Frontend/05_DYNAMIC_REQUEST_WIZARD.md`).
+
 
 ### CHG-023 | 2026-10-29 | React Frontend Step 03 — Landing Page, AI Discovery, Filter Sidebar & Resource Cards
 - **Requested by:** User (BKL-004).
