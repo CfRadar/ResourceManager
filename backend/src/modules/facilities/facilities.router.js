@@ -53,4 +53,16 @@ router.post(
   resourcesController.create
 );
 
+// GET /api/v1/facilities/:id/access-requests — Reviewer queue for facility (Spec §4.9)
+const accessRequestsCtrl = require('../accessRequests/accessRequests.controller');
+const { queryRequestsSchema } = require('../accessRequests/accessRequests.schema');
+
+router.get(
+  '/:id/access-requests',
+  authenticate,
+  validate({ params: facilityIdParamSchema, query: queryRequestsSchema }),
+  accessRequestsCtrl.getReviewQueue
+);
+
 module.exports = router;
+

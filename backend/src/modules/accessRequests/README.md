@@ -24,9 +24,12 @@ See Spec §3.1 for full transition table. All transitions go through `services/t
 | POST | `/api/v1/access-requests/:id/decision` | Manager/Owner | APPROVE/REJECT/WAITLIST |
 | POST | `/api/v1/access-requests/:id/appeal` | Requester | One appeal per decision |
 
-## Files (to be created in Step 06)
-- `accessRequests.router.js`
-- `accessRequests.controller.js`
-- `accessRequests.service.js`
-- `accessRequests.schema.js`
-- `accessRequests.stateMachine.js`
+## Files (Implemented in Step 06)
+- `accessRequests.schema.js` — Zod request, review, decision, and appeal schemas
+- `accessRequests.repository.js` — Database access with review queue query and FIFO waitlisting
+- `accessRequests.service.js` — Business logic, server-side eligibility re-run, no-self-approval enforcement, booking conflict handling
+- `accessRequests.controller.js` — HTTP handlers formatting standard envelope
+- `accessRequests.router.js` — Express routes with validate and auth middleware
+- `../../services/transition.js` — Central state machine transition engine
+- `../../services/auditChain.js` — Cryptographic SHA-256 audit chaining
+

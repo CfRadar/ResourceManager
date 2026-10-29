@@ -130,6 +130,10 @@ function buildApiRouter() {
   const { pollsRouter } = require('./modules/availability/availability.router');
   router.use('/availability-polls', pollsRouter);
 
+  // ── Access Requests module (Step 06) ──────────────────────────────────────
+  const accessRequestsRouter = require('./modules/accessRequests/accessRequests.router');
+  router.use('/access-requests', accessRequestsRouter);
+
   return router;
 }
 

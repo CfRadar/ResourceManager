@@ -41,6 +41,14 @@ class AppError extends Error {
 
 const Errors = {
   /**
+   * 400 BAD_REQUEST – generic client error.
+   * @param {string} [msg]
+   * @param {object} [details]
+   */
+  BadRequest: (msg = 'Bad request', details = {}) =>
+    new AppError('BAD_REQUEST', msg, 400, details),
+
+  /**
    * 400 VALIDATION_ERROR – body/query failed Zod schema validation.
    * @param {string} msg
    * @param {object} [details] - Field-level issues: { field: 'email', message: '...' }[]
