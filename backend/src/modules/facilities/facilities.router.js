@@ -64,5 +64,16 @@ router.get(
   accessRequestsCtrl.getReviewQueue
 );
 
+// GET /api/v1/facilities/:id/bookings — Facility calendar feed (Spec §4.11)
+const bookingsCtrl = require('../bookings/bookings.controller');
+const { queryFacilityBookingsSchema } = require('../bookings/bookings.schema');
+
+router.get(
+  '/:id/bookings',
+  authenticate,
+  validate({ params: facilityIdParamSchema, query: queryFacilityBookingsSchema }),
+  bookingsCtrl.getFacilityCalendar
+);
+
 module.exports = router;
 

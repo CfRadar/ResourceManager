@@ -376,12 +376,60 @@ function getSuggestedSlots(facility, policy, bookings = [], blackouts = [], date
 }
 
 /**
- * Atomic slot reservation placeholder for Step 07.
+ * Atomically reserves a booking slot for a resource, enforcing concurrency isolation
+ * and PostgreSQL GiST exclusion constraint (23P01 error).
+ *
+ * @param {object} bookingData
+ *   @param {string} bookingData.resourceId
+ *   @param {string} bookingData.userId
+ *   @param {string} bookingData.requestId
+ *   @param {string} bookingData.startAt
+ *   @param {string} bookingData.endAt
+ *   @param {number} [bookingData.policyVersionApplied]
+ * @param {object} [options]
+ *   @param {object} [options.trx]
+ *
+ * @returns {Promise<object>} The confirmed booking row
  */
-async function reserveSlot() {
-  throw new Error(
-    '[bookingEngine] reserveSlot is implemented in Step 07 (Bookings, Concurrency & Check-in).'
-  );
+async function reserveSlot(bookingData, options = {}) {
+  const { db } = require('../config/db');
+  const qb = options.trx || db;
+
+  // 1. Check for overlapping active bookings
+  const overlaps = await qb('bookings')
+    .where('resource_id', bookingData.resourceId)
+    .whereIn('status', ['SCHEDULED', 'CHECKED_IN', 'IN_USE'])
+    .where('start_at', '<', bookingData.endAt)
+    .where('end_at', '>', bookingData.startAt)
+    .select('id', 'start_at', 'end_at');
+
+  if (overlaps.length > 0) {
+    throw Errors.BookingConflict({
+      conflictingBookings: overlaps.map((b) => ({ id: b.id, startAt: b.start_at, endAt: b.end_at })),
+    });
+  }
+
+  // 2. Insert into bookings, catching Postgres GiST 23P01 exclusion
+  try {
+    const row = {
+      resource_id: bookingData.resourceId,
+      user_id:     bookingData.userId,
+      request_id:  bookingData.requestId,
+      start_at:    bookingData.startAt,
+      end_at:      bookingData.endAt,
+      status:      'SCHEDULED',
+      policy_version_applied: bookingData.policyVersionApplied || null,
+    };
+    const rows = await qb('bookings').insert(row).returning('*');
+    return Array.isArray(rows) ? rows[0] : (rows || row);
+  } catch (err) {
+    if (err.code === '23P01') {
+      throw Errors.BookingConflict({
+        reason: 'PostgreSQL GiST exclusion: slot already booked concurrently',
+      });
+    }
+    throw err;
+  }
 }
 
 module.exports = {

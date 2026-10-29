@@ -84,6 +84,41 @@
 
 ## 6. Change Log (newest first)
 
+### CHG-013 | 2026-10-29 | Step 07 — Bookings, Concurrency, Check-In & Physical Returns
+- **Requested by:** User — "@07_BOOKINGS_CONCURRENCY_AND_CHECKIN.md start this" (BKL-012).
+- **Skills used:** `project-memory-workflow`
+- **What changed:**
+  - `backend/src/utils/geo.js` — Great-circle Haversine distance calculator (`calculateHaversineDistance`) and soft geofence evaluator (`evaluateGeofence` returning `'WITHIN'`, `'OUTSIDE'`, or `'NOT_PROVIDED'`).
+  - `backend/src/services/bookingEngine.js` — Implemented `reserveSlot` with PostgreSQL GiST exclusion constraint (`no_overlapping_bookings`) error code `23P01` catching and mapping to `409 BOOKING_CONFLICT`.
+  - `backend/src/modules/bookings/` — Implemented schemas, repository, service, controller, and router:
+    - User bookings listing (`GET /api/v1/bookings/mine`)
+    - Detailed booking view with dynamic digital QR check-in payload (`GET /api/v1/bookings/:id`)
+    - Facility calendar feed within `[from, to]` (`GET /api/v1/facilities/:id/bookings`)
+    - Rescheduling (`POST /api/v1/bookings/:id/reschedule`) with overlap collision check
+    - Duration extension (`POST /api/v1/bookings/:id/extend`) with adjacent collision prevention
+    - Cancellation (`POST /api/v1/bookings/:id/cancel`) with FIFO waitlist candidate notification (`WAITLIST_SLOT_AVAILABLE`)
+    - No-show strike tracking (`POST /api/v1/bookings/:id/mark-no-show`) after grace period window
+    - RFC 5545 iCalendar `.ics` export stream (`GET /api/v1/bookings/:id/calendar.ics`)
+  - `backend/src/modules/checkin/` — Implemented schemas, repository, service, controller, and router:
+    - Check-in window gating `[startAt - 15min, startAt + graceMinutes]`
+    - Soft Haversine geofence calculation
+    - Cryptographic virtual signatures with SHA-256 hash chaining (`demo: true`)
+    - Physical condition reporting (`BEFORE` and `AFTER` in `condition_reports`)
+    - Start-use transition (`POST /api/v1/bookings/:id/start-use` advancing `CHECKED_IN → IN_USE`)
+    - Check-out with automated condition diff computation (detecting rating drops >= 2 and missing accessories)
+    - Manager return confirmation (`POST /api/v1/bookings/:id/confirm-return` confirming return `RETURNED → CLOSED` or pre-filling incident draft with `requiresInspection: true`)
+    - Side-by-side condition report viewing (`GET /api/v1/bookings/:id/condition-reports`)
+  - `backend/src/modules/facilities/facilities.router.js` & `backend/src/app.js` — Mounted booking routes and facility calendar feeds.
+  - `backend/tests/bookings.test.js` — 9 unit and integration test blocks covering full booking lifecycle.
+  - `backend/tests/checkin.test.js` — 8 unit and integration test blocks covering check-in, geofencing, signatures, diffing, and return confirmation.
+  - `backend/tests/concurrency/booking.test.js` — 10-client parallel concurrency test verifying exactly 1 reservation succeeds and 9 fail with 409 `BOOKING_CONFLICT`.
+  - `backend/src/modules/bookings/README.md` & `backend/src/modules/checkin/README.md` — Updated with complete module documentation.
+  - `context/03_IMPLEMENTATION_STATUS_TRACKER.md` — Marked Step 07 complete (188 backend tests passing).
+- **Why:** Provide full concurrency-safe booking lifecycle, physical check-in/out, soft geofencing, virtual electronic signatures, condition diffing, and iCal exports per Spec §4.11 and §4.12.
+- **Verification:** Ran `npm test` → **188/188 tests passing across 12 test suites**; ran `uv run pytest` in UviAge → **23/23 tests passing**; ran `npm run build` in frontend → **0 errors**.
+- **Commit:** Pending.
+- **Follow-ups:** Step 08: Service Requests, Referrals, Incidents & Dispute Resolution (`Research/NodeBackend/08_SERVICES_INCIDENTS_AND_DISPUTES.md`).
+
 ### CHG-012 | 2026-10-29 | Created Agent Context Hub (`context/`)
 - **Requested by:** User — "I want to make a context folder, which will be used to give any agent the context of the project workflow, how to use skills, and everything about research and docs folder, it will include marking of which processes are done, and will be updated. it will be given to the agent to analyse on the first chat".
 - **Skills used:** `project-memory-workflow`
@@ -376,7 +411,7 @@
 - [x] BKL-010 done in CHG-010 (Step 05: Availability, Blackouts, Slots & Deterministic Eligibility Engine, 133 tests)
 - [x] BKL-010B done in CHG-008B (UviAge Steps 00–02: FastAPI setup, Pydantic V2 contracts, ReadOnlyRepository, 23 tests)
 - [x] BKL-011 done in CHG-011 (Step 06: Access Requests, State Machine, Review Queue & Appeals, 149 backend tests)
-- [ ] BKL-012 (P0) Step 07: Bookings, Concurrency & Check-In / QR Scanning | Source: Research/NodeBackend/07_BOOKINGS_CONCURRENCY_AND_CHECKIN.md
+- [x] BKL-012 done in CHG-013 (Step 07: Bookings, Concurrency, Check-In, Geofencing, Signatures & Returns, 188 backend tests)
 - [ ] BKL-003 (P0) Implement UviAge `/ai/parse-need` and `/ai/match-need` endpoints | Source: Research/01_BACKEND_API_SPEC.md
 - [ ] BKL-004 (P1) Implement React frontend navigation, layout, and resource catalog pages | Source: Research/02_FRONTEND_DESIGN_SPEC.md
 - [ ] BKL-005 (P1) Implement end-to-end booking reservation and approval workflow | Source: Research/01_BACKEND_API_SPEC.md

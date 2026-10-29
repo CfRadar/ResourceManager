@@ -9,7 +9,7 @@
 
 | Stack | Blueprint Location | Completed Steps | In Progress / Partial | Pending Steps | Active Tests | Stack Progress |
 | :--- | :--- | :---: | :---: | :---: | :---: | :---: |
-| **Node.js Express Backend** | `Research/NodeBackend/` | **7 / 11** | 0 | **4** | **149 passed** (9 suites) | **~64%** |
+| **Node.js Express Backend** | `Research/NodeBackend/` | **8 / 11** | 0 | **3** | **188 passed** (12 suites) | **~73%** |
 | **Python AI Service (UviAge)** | `Research/PythonBackend/` | **3 / 10** | **2** | **5** | **23 passed** | **~35%** |
 | **React Frontend** | `Research/Frontend/` | **0 / 11** | 0 | **11** | Build verified | **~5%** |
 
@@ -26,12 +26,12 @@
 | **04** | `04_RESOURCES_AND_POLICIES.md` | **DONE** | `src/modules/resources/`, `src/modules/policies/`, `redaction.js` | `tests/resources.test.js` & `policies.test.js` (26 tests) |
 | **05** | `05_AVAILABILITY_SLOTS_AND_ELIGIBILITY.md` | **DONE** | `src/services/bookingEngine.js`, `src/services/eligibilityEngine.js` | `tests/availability.test.js` & `eligibility.test.js` (23 tests) |
 | **06** | `06_ACCESS_REQUESTS_AND_STATE_MACHINE.md` | **DONE** | `src/services/transition.js`, `src/services/auditChain.js`, `src/modules/accessRequests/` | `tests/accessRequests.test.js` (16 tests) |
-| **07** | `07_BOOKINGS_CONCURRENCY_AND_CHECKIN.md` | ⏳ **PENDING** | `src/modules/bookings/README.md`, `src/modules/checkin/README.md` (GIST constraint ready) | Pending implementation |
+| **07** | `07_BOOKINGS_CONCURRENCY_AND_CHECKIN.md` | **DONE** | `src/utils/geo.js`, `src/services/bookingEngine.js`, `src/modules/bookings/`, `src/modules/checkin/` | `tests/bookings.test.js`, `tests/checkin.test.js`, `tests/concurrency/booking.test.js` (39 tests) |
 | **08** | `08_SERVICE_REQUESTS_AND_REFERRALS.md` | ⏳ **PENDING** | `src/modules/serviceRequests/`, `needRequests/`, `referrals/` (Placeholders) | Pending implementation |
 | **09** | `09_INCIDENTS_TOKENS_PAYMENTS_EXPORTS.md` | ⏳ **PENDING** | `src/modules/incidents/`, `tokens/`, `payments/`, `exports/` (Placeholders) | Pending implementation |
 | **10** | `10_BACKGROUND_JOBS_AND_AUDIT_HASH_CHAIN.md` | ⏳ **PENDING** | `src/jobs/` (Cron jobs & hash chain verification CLI pending) | Pending implementation |
 
-**Backend Test Total:** **149 passed** across 9 test suites (`npm test`).
+**Backend Test Total:** **188 passed** across 12 test suites (`npm test`).
 
 ---
 

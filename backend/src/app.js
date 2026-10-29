@@ -134,6 +134,10 @@ function buildApiRouter() {
   const accessRequestsRouter = require('./modules/accessRequests/accessRequests.router');
   router.use('/access-requests', accessRequestsRouter);
 
+  // ── Bookings & Check-in module (Step 07) ──────────────────────────────────
+  const bookingsRouter = require('./modules/bookings/bookings.router');
+  router.use('/bookings', bookingsRouter);
+
   return router;
 }
 
