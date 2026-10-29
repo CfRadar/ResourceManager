@@ -42,12 +42,12 @@
 
 | Area | Status | Notes |
 |---|---|---|
-| **Backend API** | In progress | Steps 00–03 complete: modular architecture, all middleware, auth (JWT/refresh, RBAC, no-self-approval), institutions domain, facilities domain, membership lifecycle, working hours, and partner linking. Steps 04–10 pending. |
+| **Backend API** | In progress | Steps 00–04 complete: modular architecture, all middleware, auth, institutions, facilities, memberships, partner linking, resources catalog, dynamic policy versioning, visibility filtering, and confidential field redaction. Steps 05–10 pending. |
 | **Frontend** | In progress | React + Vite + TypeScript initialized with basic App component on port 5173 |
 | **AI Service** | In progress | FastAPI initialized with `/` and `/ai/health` on port 8000; matching engine pending |
 | **Database** | Migrations ready | 7 Knex migration files (001–007) cover all spec entities; BaseRepository done; seed ready. Run `npm run migrate:latest`. |
 | **Orchestration** | Working | Root Makefile with `make install`, `make backend`, `make frontend`, `make agent`, `make clear` |
-| **Tests** | In progress | 84 tests passing (12 smoke + 24 auth + 26 institutions + 22 facilities); 4 test suites all green |
+| **Tests** | In progress | 110 tests passing (12 smoke + 24 auth + 26 institutions + 22 facilities + 16 resources + 10 policies); 6 test suites all green |
 
 **How to run:**
 - Install: `make install`
@@ -56,7 +56,7 @@
 - Dev backend with hot-reload: `cd backend && npm run dev`
 
 **How to verify:**
-- Backend tests: `npm.cmd test --prefix backend` → 84 tests pass across 4 suites
+- Backend tests: `npm.cmd test --prefix backend` → 110 tests pass across 6 suites
 - Backend health: `curl http://localhost:5000/health` → `{"ok":true,"data":{"status":"healthy"}}`
 - Backend API health: `curl http://localhost:5000/api/v1/health` → same shape
 - AI Service: `curl http://localhost:8000/ai/health` → `{"ok":true,"status":"healthy"}`
@@ -84,6 +84,28 @@
 
 ## 6. Change Log (newest first)
 
+### CHG-009 | 2026-10-29 | Step 04 — Resources, Policies & Redaction Layer Implementation
+- **Requested by:** User — "continue" (BKL-009).
+- **Skills used:** `project-memory-workflow`
+- **What changed:**
+  - `backend/src/modules/resources/resources.schema.js` — Zod schemas for resource query filtering (`q`, `category`, `institutionId`, `facilityId`, `accessMode`, `city`), creation, partial edits, and UUID parameters.
+  - `backend/src/modules/policies/policies.schema.js` — Zod schema validating complete policy JSON (Spec §4.6) including access modes, user groups, purpose statement, approvals, training/document prerequisites, limits, cancellation, late return, pricing models, geofencing, and condition report rules.
+  - `backend/src/modules/resources/redaction.js` — Confidential field-level redaction utility stripping door codes, access instructions, maintenance passwords, internal safety notes, and owner contacts from public view while exposing them to authorized managers/owners or requesters with approved bookings.
+  - `backend/src/modules/resources/resources.repository.js` — `ResourceRepository` with visibility filtering (`PUBLIC`, `NETWORK` via partner resolution, `INSTITUTION`, `PRIVATE`), detail retrieval with joined facilities and active policies, distinct category/tag vocabulary extraction, and soft-deactivation.
+  - `backend/src/modules/policies/policies.repository.js` — `PolicyRepository` supporting active policy lookups and atomic version creation (`policy_version = current + 1`, marking previous versions `is_current = false`).
+  - `backend/src/modules/resources/resources.service.js` — Service handling catalog search with redaction, detail retrieval with strict 404 for unauthorized visibility, unredacted private details check, facility-scoped resource creation/editing, and soft-deactivation.
+  - `backend/src/modules/policies/policies.service.js` — Policy retrieval and version increment service checking facility manager/owner role.
+  - `backend/src/modules/resources/resources.controller.js` & `backend/src/modules/policies/policies.controller.js` — HTTP controllers.
+  - `backend/src/modules/resources/resources.router.js` — Routes mounted under `/api/v1/resources` including `/categories`, `/:id/private-details`, and `/:id/policy`.
+  - `backend/src/modules/facilities/facilities.router.js` — Added `POST /:id/resources` to allow facility resource creation.
+  - `backend/src/app.js` — Mounted resources router under `/api/v1/resources`.
+  - `backend/tests/resources.test.js` — 16 integration tests covering visibility rules (`PUBLIC`, `INSTITUTION`, `NETWORK`, `PRIVATE`), field redaction, private details access control, facility-scoped creation, and soft-deactivation.
+  - `backend/tests/policies.test.js` — 10 tests covering policy schema validation, active policy retrieval, and version incrementing.
+- **Why:** Enable resource catalog discovery, risk-based access boundaries, policy version tracking, and operational security via redaction.
+- **Verification:** Ran `npm.cmd test --prefix backend` → **110/110 passing across 6 test suites**.
+- **Commit:** Pending.
+- **Follow-ups:** Step 05: Availability Slots & Eligibility Engine (`Research/NodeBackend/05_AVAILABILITY_SLOTS_AND_ELIGIBILITY.md`).
+
 ### CHG-008 | 2026-10-29 | Step 03 — Institutions, Facilities & Memberships Implementation
 - **Requested by:** User — "Implement Step 03: Institutions, Facilities & Memberships completely in the actual codebase."
 - **Skills used:** `project-memory-workflow`
@@ -104,7 +126,7 @@
   - `backend/tests/facilities.test.js` — 22 unit and integration tests covering timezone-aware working hours helper, coordinate validation, geofence validation, IANA timezone validation, public list filtering, and facility updates.
 - **Why:** Provide full Step 03 implementation enabling multi-institution collaboration, facility operations, membership applications, and partner network sharing.
 - **Verification:** Ran `npm.cmd test --prefix backend` → **84/84 passing across 4 test suites** (smoke, auth, institutions, facilities).
-- **Commit:** Pending.
+- **Commit:** `fba2cb9`
 - **Follow-ups:** Step 04: Resources & Policies API (`Research/NodeBackend/04_RESOURCES_AND_POLICIES.md`).
 
 ### CHG-007 | 2026-10-29 | Step 02 — Authentication, RBAC & Security Middleware
@@ -271,8 +293,9 @@
 - [x] BKL-006 done in CHG-006 (Step 01: all 7 migration files, seed, BaseRepository, knexfile)
 - [x] BKL-007 done in CHG-007 (Step 02: all auth endpoints, JWT/refresh tokens, RBAC, assertNoSelfApproval, AI client, 36 tests)
 - [x] BKL-008 done in CHG-008 (Step 03: Institutions, Facilities, Memberships & Partners API, 84 tests)
-- [ ] BKL-002 (P0) Implement Core Resource endpoints in Express backend | Depends on: CHG-007, CHG-008 | Source: Research/01_BACKEND_API_SPEC.md
-- [ ] BKL-009 (P0) Step 04: Resources & Policies API | Source: Research/NodeBackend/04_RESOURCES_AND_POLICIES.md
+- [x] BKL-002 done in CHG-009 (Step 04: Resources catalog, search, and visibility filtering)
+- [x] BKL-009 done in CHG-009 (Step 04: Dynamic policy versioning and confidential redaction layer, 110 tests)
+- [ ] BKL-010 (P0) Step 05: Availability Slots & Eligibility Engine | Source: Research/NodeBackend/05_AVAILABILITY_SLOTS_AND_ELIGIBILITY.md
 - [ ] BKL-003 (P0) Implement UviAge `/ai/parse-need` and `/ai/match-need` endpoints | Source: Research/01_BACKEND_API_SPEC.md
 - [ ] BKL-004 (P1) Implement React frontend navigation, layout, and resource catalog pages | Source: Research/02_FRONTEND_DESIGN_SPEC.md
 - [ ] BKL-005 (P1) Implement end-to-end booking reservation and approval workflow | Source: Research/01_BACKEND_API_SPEC.md

@@ -122,11 +122,9 @@ function buildApiRouter() {
   router.use('/institutions', institutionsRouter);
   router.use('/facilities',   facilitiesRouter);
 
-  // ── Module routers are mounted here in later steps ──────────────────────────
-  // Example (Step 04+):
-  //   const resourcesRouter = require('./modules/resources/resources.router');
-  //   router.use('/resources', resourcesRouter);
-  // ─────────────────────────────────────────────────────────────────────────────
+  // ── Resources & Policies modules (Step 04) ────────────────────────────────
+  const resourcesRouter = require('./modules/resources/resources.router');
+  router.use('/resources', resourcesRouter);
 
   return router;
 }
