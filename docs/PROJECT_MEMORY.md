@@ -84,6 +84,22 @@
 
 ## 6. Change Log (newest first)
 
+### CHG-018 | 2026-10-29 | UviAge Steps 04, 05 & 06 — Vector Indexing, Semantic Matching, Re-ranking & BM25 Fallback
+- **Requested by:** User — "yes" (BKL-003).
+- **Skills used:** `project-memory-workflow`
+- **What changed:**
+  - `UviAge/matching/embedder.py` — Implemented `build_searchable_document()` combining resource attributes and `VectorIndexer` utilizing `all-MiniLM-L6-v2` with normalized cosine similarity search and lazy loading.
+  - `UviAge/matching/fallback.py` — Implemented domain synonym dictionary (covering 3D printing, laser, CNC, microscopy, spectroscopy, electronics) and pure-Python zero-dependency `BM25Okapi` deterministic fallback searcher with score normalization.
+  - `UviAge/matching/rerank.py` — Implemented strict caller-authorized `visibleResourceIds` security filtering (Spec §6.2), non-hallucinated reason and caveat generation, `MatchType` classification, and multi-factor re-ranking.
+  - `UviAge/repository.py` — Exported module-level helpers `get_resources_by_ids()`, `get_all_active_resources()`, and `get_incident_context()`.
+  - `UviAge/main.py` — Mounted `POST /ai/match-need` with visibility boundaries and fallback, `POST /ai/reindex` endpoint, and eager startup index population.
+  - `UviAge/tests/test_matching.py` — 12 unit and integration tests verifying vector document builder, domain synonym expansion, strict visibility filtering, reason/caveat generation, `MatchType`, `POST /ai/match-need`, and `POST /ai/reindex`.
+  - `context/03_IMPLEMENTATION_STATUS_TRACKER.md` — Updated AI service to 7/10 steps complete (~70%, 42 pytest tests).
+- **Why:** Provide neural semantic capability matching with resilient zero-token deterministic fallback and explainable reasons per Spec §4.24, §6.2, and §6.3.
+- **Verification:** Ran `cd UviAge; py -m uv run pytest` → **42/42 tests passing** (100% green); ran `cd backend; npm.cmd test` → **272/272 tests passing across 18 test suites**; ran `cd frontend; npm.cmd run build` → **0 errors**.
+- **Commit:** `45201ce`
+- **Follow-ups:** Step 07 (Incident Summary Drafting) or Frontend Step 00/01.
+
 ### CHG-017 | 2026-10-29 | UviAge Step 03 — Natural Language Need Parser (`/ai/parse-need`)
 - **Requested by:** User — "@03_NATURAL_LANGUAGE_NEED_PARSER.md start this" (BKL-003).
 - **Skills used:** `project-memory-workflow`
@@ -527,6 +543,13 @@
 ---
 
 ## 7. Mistakes and Lessons (newest first)
+
+### MST-004 | 2026-10-29 | Missing module-level delegating helpers for singleton class repository
+- **What went wrong:** FastAPI route handler crashed with `AttributeError: module 'repository' has no attribute 'get_all_active_resources'`.
+- **Root cause:** `repository.py` initialized a singleton instance `repository = ReadOnlyRepository()`, but endpoints imported the module as `import repository` and invoked `repository.get_all_active_resources()` without module-level functions binding to the instance.
+- **Fix:** Explicitly exported module-level delegating functions `get_all_active_resources()`, `get_resources_by_ids()`, and `get_incident_context()` in `repository.py`.
+- **Rule going forward:** When exporting singleton instances from a module, ensure all public API methods are also exported as top-level delegating functions to prevent import/call confusion.
+- **Related:** CHG-018
 
 ### MST-003 | 2026-10-29 | Router auth middleware import identifier
 - **What went wrong:** When creating new modular routers for notifications, audit, admin, dashboards, and AI proxy, using `const { requireAuth } = require('../../middleware/auth')` caused `TypeError: argument handler is required` in `router.use(requireAuth)`.
