@@ -97,7 +97,7 @@
   - `context/03_IMPLEMENTATION_STATUS_TRACKER.md` — Marked Frontend Step 05 **DONE** (6/11 complete, ~55%).
 - **Why:** Enable researchers to configure policy-compliant bookings, select real-time collision-free slots, declare materials, attest to lab safety via digital signature, and track fair-use quotas per Spec §5.4.
 - **Verification:** Ran `cd frontend; npm.cmd run build` → `tsc -b && vite build` built in 518ms with **0 errors**; ran `cd backend; npm.cmd test` → **280/280 passed** across 19 suites; ran `cd UviAge; py -m uv run pytest` → **55/55 passed** across 7 suites.
-- **Commit:** pending
+- **Commit:** 6b6d9f8
 - **Follow-ups:** Proceed to Step 06: Requester Dashboard & Bookings (`Research/Frontend/06_REQUESTER_DASHBOARD_AND_BOOKINGS.md`).
 
 ### CHG-024 | 2026-10-29 | React Frontend Step 04 — Resource Detail View & Real-Time Eligibility Verification
