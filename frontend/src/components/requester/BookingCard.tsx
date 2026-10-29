@@ -107,3 +107,4 @@ export const BookingCard: React.FC<BookingCardProps> = ({ booking }) => {
     </div>
   );
 };
+

@@ -15,6 +15,8 @@ import { MyDashboardPage } from '../features/requester/MyDashboardPage';
 import { MyBookingsPage } from '../features/requester/MyBookingsPage';
 import { RequestDetailPage } from '../features/requester/RequestDetailPage';
 import { BookingDetailPage } from '../features/requester/BookingDetailPage';
+import { CheckInPage } from '../features/checkin/CheckInPage';
+import { CheckOutPage } from '../features/checkin/CheckOutPage';
 import { ReviewQueuePage } from '../features/manage/ReviewQueuePage';
 import { ManagerDashboardPage } from '../features/manage/ManagerDashboardPage';
 import { CoordinatorDeskPage } from '../features/coordinate/CoordinatorDeskPage';
@@ -79,6 +81,22 @@ export const router = createBrowserRouter([
         element: (
           <AuthGuard>
             <BookingDetailPage />
+          </AuthGuard>
+        ),
+      },
+      {
+        path: 'bookings/:id/checkin',
+        element: (
+          <AuthGuard>
+            <CheckInPage />
+          </AuthGuard>
+        ),
+      },
+      {
+        path: 'bookings/:id/checkout',
+        element: (
+          <AuthGuard>
+            <CheckOutPage />
           </AuthGuard>
         ),
       },

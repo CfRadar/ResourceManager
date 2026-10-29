@@ -225,30 +225,33 @@ export function BookingDetailPage() {
           </div>
         </div>
 
-        {/* Check-In Action Button */}
+        {/* Check-In / Check-Out Action Button */}
         {booking.status === 'SCHEDULED' && (
           <div>
             {isCheckInEligible ? (
-              <button
-                type="button"
-                onClick={() => {
-                  showToast({
-                    type: 'success',
-                    title: 'Check-in verified! Door access unlocked.',
-                  });
-                  setBooking({ ...booking, status: 'CHECKED_IN' });
-                }}
+              <Link
+                to={`/bookings/${booking.id}/checkin`}
                 className="px-6 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold transition-colors flex items-center gap-2 shadow-xs"
               >
                 <QrCode className="w-4 h-4" />
-                <span>Check In Now</span>
-              </button>
+                <span>Begin Check-In Wizard</span>
+              </Link>
             ) : (
               <span className="text-xs font-semibold px-3 py-1.5 bg-white/80 rounded-xl border border-slate-200 text-slate-500">
                 Check-in opens 15m prior to start
               </span>
             )}
           </div>
+        )}
+
+        {booking.status === 'CHECKED_IN' && (
+          <Link
+            to={`/bookings/${booking.id}/checkout`}
+            className="px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold transition-colors flex items-center gap-2 shadow-xs"
+          >
+            <QrCode className="w-4 h-4" />
+            <span>Check-Out & Return Instrument</span>
+          </Link>
         )}
       </div>
 

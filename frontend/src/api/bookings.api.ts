@@ -181,3 +181,4 @@ export async function rescheduleBooking(id: string, payload: ReschedulePayload):
     }
   }
 }
+
