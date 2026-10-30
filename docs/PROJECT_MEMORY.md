@@ -96,7 +96,7 @@
   - `frontend/src/ReviewQueue.tsx`: Clarified applicant verification sources with `SSO directory (Test SSO)` and `Membership verified through institutional SSO (Test Sandbox) 4 minutes ago.`.
 - **Why:** Provide clear, unequivocal notices throughout the frontend interface that all login capabilities, user accounts, and credentials are exclusively for testing and demonstration purposes.
 - **Verification:** `cd frontend && pnpm.cmd exec tsc --noEmit` passed with 0 errors; `cd frontend && pnpm.cmd run build` passed in 337ms with 0 errors; `cd backend && npm.cmd test` passed 280/280 tests across 19 suites.
-- **Commit:** pending git commit
+- **Commit:** 1105dc1
 - **Follow-ups:** System is fully verified.
 
 ### CHG-031 | 2026-10-30 | Replace Frontend with Faithful Port of Institutional Equipment Discovery UI
