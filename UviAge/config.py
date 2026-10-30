@@ -9,7 +9,12 @@ class Settings(BaseSettings):
     HOST: str = "0.0.0.0"
     PORT: int = 8000
     INTERNAL_API_KEY: str = "dev-secret-internal-key"
-    ALLOWED_ORIGINS: str = "http://localhost:5000"
+    ALLOWED_ORIGINS: str = (
+        "http://localhost:5000,"
+        "http://localhost:5173,"
+        "https://resourcemanager.onrender.com,"
+        "https://resource-manager-seven-pied.vercel.app"
+    )
     DATABASE_URL: Optional[str] = None
     MODEL_NAME: str = "all-MiniLM-L6-v2"
 

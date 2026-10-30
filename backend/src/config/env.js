@@ -39,7 +39,7 @@ const envSchema = z.object({
   FRONTEND_ORIGIN: z
     .string()
     .url('FRONTEND_ORIGIN must be a valid URL')
-    .default('http://localhost:5173'),
+    .default('https://resource-manager-seven-pied.vercel.app'),
 
   // Database – accept DATABASE_URL OR individual fields.
   // Individual fields are optional here; db.js decides how to connect.
@@ -72,7 +72,7 @@ const envSchema = z.object({
   AI_SERVICE_URL: z
     .string()
     .url('AI_SERVICE_URL must be a valid URL')
-    .default('http://localhost:8000'),
+    .default('https://resourcemanager-vkgn.onrender.com'),
   AI_INTERNAL_KEY: z.string().optional(),
 
   // Rate limiting (optional overrides)

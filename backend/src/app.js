@@ -44,12 +44,18 @@ function createApp() {
 
   // ── 2. CORS ─────────────────────────────────────────────────────────────────
   // Spec §5.2: CORS allowlist. Never use a wildcard with credentials.
-  // FRONTEND_ORIGIN is validated by env.js (must be a URL, not '*').
+  // Supports configured FRONTEND_ORIGIN as well as the deployed Vercel URL and local dev.
+  const allowedOrigins = new Set([
+    env.FRONTEND_ORIGIN,
+    'https://resource-manager-seven-pied.vercel.app',
+    'http://localhost:5173',
+  ].filter(Boolean));
+
   app.use(
     cors({
       origin: (origin, cb) => {
-        // Allow server-to-server (no origin) and the configured frontend origin.
-        if (!origin || origin === env.FRONTEND_ORIGIN) {
+        // Allow server-to-server (no origin) and any origin in the allowlist.
+        if (!origin || allowedOrigins.has(origin)) {
           return cb(null, true);
         }
         return cb(

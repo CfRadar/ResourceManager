@@ -84,6 +84,20 @@
 
 ## 6. Change Log (newest first)
 
+### CHG-033 | 2026-10-30 | Configure Deployed URLs Directly in Codebase for Render and Vercel
+- **Requested by:** User ("Node backend uri - https://resourcemanager.onrender.com, Vercel uri - https://resource-manager-seven-pied.vercel.app/, Python backend uri - https://resourcemanager-vkgn.onrender.com these are the deployment links, update the code accordingly, also check if they are working or not. env files cannot be changed now, so its better to change the urls in the code").
+- **Skills used:** `project-memory-workflow`
+- **What changed:**
+  - `backend/src/app.js`: Updated CORS origin validation allowlist to include `https://resource-manager-seven-pied.vercel.app`, `http://localhost:5173`, and `env.FRONTEND_ORIGIN`, allowing the deployed Vercel frontend to query the Render Express backend with credentials.
+  - `backend/src/config/env.js`: Set fallback default `FRONTEND_ORIGIN` to `https://resource-manager-seven-pied.vercel.app` and `AI_SERVICE_URL` default to `https://resourcemanager-vkgn.onrender.com`.
+  - `UviAge/config.py`: Updated `ALLOWED_ORIGINS` default to include `https://resourcemanager.onrender.com` and `https://resource-manager-seven-pied.vercel.app` alongside local dev hosts.
+  - `frontend/vite.config.ts`: Updated proxy `/api` target to `https://resourcemanager.onrender.com` with secure SSL.
+  - `frontend/tsconfig.json`: Removed deprecated `"baseUrl": "."` option for TypeScript 5.7+ compatibility.
+- **Why:** Enable direct cross-service communication between the live deployed Vercel frontend, Render Node backend, and Render Python UviAge AI microservice without requiring manual `.env` file modifications in deployment dashboards.
+- **Verification:** Probed all 3 live endpoints (Node backend `/health` -> 200 OK, Vercel frontend -> 200 OK, Python UviAge `/ai/health` -> 200 OK); ran `npm test` in `backend/` -> 280/280 passing across 19 suites; ran `npm run build` in `frontend/` -> compiled cleanly in 1.12s.
+- **Commit:** Pending.
+- **Follow-ups:** System is fully wired for production deployments.
+
 ### CHG-032 | 2026-10-30 | Display Testing Purpose Notice for All Login Access and Personas
 - **Requested by:** User ("mwntion in frontend that all login access arr for testing purpose").
 - **Skills used:** `project-memory-workflow`
