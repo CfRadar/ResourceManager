@@ -128,7 +128,7 @@ const eligibilityRows = [
     label: "Active institutional membership",
     detail: "Northbridge University · Staff Researcher",
     status: "pass",
-    source: "SSO directory",
+    source: "SSO directory (Test SSO)",
   },
   {
     id: "training",
@@ -368,7 +368,7 @@ export default function ReviewQueue({
               </div>
               <div className="membership-note">
                 <Icon name="check" size={14} />
-                Membership verified through institutional SSO 4 minutes ago.
+                Membership verified through institutional SSO (Test Sandbox) 4 minutes ago.
               </div>
             </section>
 

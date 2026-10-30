@@ -388,7 +388,7 @@ export default function DetailPage({
                     </span>
                     <div>
                       <strong>Active institutional account</strong>
-                      <span>Verified through Northbridge University SSO</span>
+                      <span>Verified through Northbridge University SSO (Test Account)</span>
                     </div>
                     <span className="status-label pass">Pass</span>
                   </div>
@@ -550,7 +550,7 @@ export default function DetailPage({
                   <p className="section-kicker">Access instructions</p>
                   <h2>Visible after your booking is confirmed</h2>
                   <p>
-                    Room entry details, equipment login, and emergency contacts
+                    Room entry details, equipment login (demo access), and emergency contacts
                     are protected for facility security.
                   </p>
                 </div>

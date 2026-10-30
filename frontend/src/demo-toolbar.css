@@ -27,8 +27,9 @@
 .demo-role-copy strong { overflow: hidden; color: #fff; font-size: 7px; font-weight: 700; text-overflow: ellipsis; white-space: nowrap; }
 .demo-role-trigger > svg { transition: transform .2s ease; }
 .demo-role-trigger > svg.open { transform: rotate(180deg); }
-.demo-role-menu { width: 245px; padding: 7px; position: absolute; z-index: 280; top: 40px; left: 0; border: 1px solid #deddf2; border-radius: 9px; background: #fff; color: #202039; box-shadow: 0 18px 45px rgba(30,24,120,.22); animation: demo-menu-in .18s ease both; }
-.demo-role-menu > span { display: block; padding: 5px 7px 7px; color: #8a89a1; font-size: 6px; font-weight: 700; letter-spacing: .07em; text-transform: uppercase; }
+.demo-role-menu { width: 255px; padding: 7px; position: absolute; z-index: 280; top: 40px; left: 0; border: 1px solid #deddf2; border-radius: 9px; background: #fff; color: #202039; box-shadow: 0 18px 45px rgba(30,24,120,.22); animation: demo-menu-in .18s ease both; }
+.demo-role-menu > span { display: block; padding: 5px 7px 3px; color: #8a89a1; font-size: 6px; font-weight: 700; letter-spacing: .07em; text-transform: uppercase; }
+.demo-role-notice { margin: 2px 7px 8px; padding-bottom: 6px; border-bottom: 1px dashed #e2e8f0; color: #4338ca; font-size: 7px; font-weight: 600; line-height: 1.35; }
 .demo-role-menu button { width: 100%; min-height: 48px; padding: 6px 7px; display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 8px; border: 0; border-radius: 6px; background: transparent; color: #33324a; text-align: left; cursor: pointer; }
 .demo-role-menu button:hover { background: #f2f1ff; }
 .demo-role-menu button.selected { background: #ecebff; color: #3730a3; }
@@ -44,7 +45,7 @@
 .demo-actions button:hover { border-color: rgba(255,255,255,.5); background: rgba(255,255,255,.17); transform: translateY(-1px); }
 .demo-actions button.active { border-color: #fff; background: #fff; color: #3730a3; box-shadow: 0 3px 10px rgba(30,24,120,.2); }
 .demo-actions button > span { font-size: 9px; }
-.demo-hint { flex: none; color: #b8b5ff; font-size: 6px; letter-spacing: .05em; text-transform: uppercase; }
+.demo-hint { flex: none; color: #fff; background: rgba(255,255,255,.16); border: 1px solid rgba(255,255,255,.3); border-radius: 4px; padding: 2px 7px; font-size: 6px; font-weight: 600; letter-spacing: .03em; text-transform: none; }
 .demo-app-content { padding-top: 46px; }
 .results-header,
 .detail-header,

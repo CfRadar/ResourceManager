@@ -172,19 +172,26 @@ export default function IntroPage({ onDiscover }: { onDiscover: () => void }) {
               </div>
             )}
           </div>
-          <label className="intro-role">
-            <span>Acting as</span>
+          <label className="intro-role" title="All login access is for testing purposes only">
+            <span>Acting as (Testing)</span>
             <strong>Researcher</strong>
-            <select aria-label="Acting role">
-              <option>Researcher</option>
-              <option>Facility manager</option>
-              <option>Student</option>
+            <select aria-label="Acting role (Testing)">
+              <option>Researcher (Testing)</option>
+              <option>Facility manager (Testing)</option>
+              <option>Student (Testing)</option>
             </select>
             <Icon name="chevron" size={13} />
           </label>
           <span className="intro-avatar">AK</span>
         </div>
       </header>
+
+      <div className="intro-testing-notice" role="note" aria-label="Testing Notice">
+        <span className="intro-testing-pill">Testing Notice</span>
+        <span>
+          Notice: All login access, user personas, and authentication credentials across this application are for testing purposes only.
+        </span>
+      </div>
 
       <main>
         <section className="intro-hero">

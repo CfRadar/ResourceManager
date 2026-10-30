@@ -5,17 +5,17 @@ type DemoStage = "home" | "search" | "request" | "approve" | "checkin"
 const roles = [
   {
     label: "Manager at Makerspace A",
-    detail: "Facility manager",
+    detail: "Facility manager · Testing persona",
     initials: "MA",
   },
   {
     label: "Student Requester",
-    detail: "Equipment user",
+    detail: "Equipment user · Testing persona",
     initials: "SR",
   },
   {
     label: "System Admin",
-    detail: "Platform administrator",
+    detail: "Platform administrator · Testing persona",
     initials: "SA",
   },
 ]
@@ -58,7 +58,7 @@ export default function DemoToolbar({
             {roles.find((item) => item.label === role)?.initials}
           </span>
           <span className="demo-role-copy">
-            <small>Acting role</small>
+            <small>Acting role (Testing only)</small>
             <strong>{role}</strong>
           </span>
           <svg
@@ -77,6 +77,9 @@ export default function DemoToolbar({
         {roleOpen && (
           <div className="demo-role-menu">
             <span>Switch demo persona</span>
+            <p className="demo-role-notice">
+              All login access and personas are for testing purposes only.
+            </p>
             {roles.map((item) => (
               <button
                 key={item.label}
@@ -126,7 +129,12 @@ export default function DemoToolbar({
         ))}
       </div>
 
-      <span className="demo-hint">Judge mode · seeded data</span>
+      <span
+        className="demo-hint"
+        title="All login accounts, credentials, and personas are for testing purposes only"
+      >
+        Notice: All login access is for testing purposes only
+      </span>
     </aside>
   )
 }

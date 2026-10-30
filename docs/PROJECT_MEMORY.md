@@ -84,6 +84,21 @@
 
 ## 6. Change Log (newest first)
 
+### CHG-032 | 2026-10-30 | Display Testing Purpose Notice for All Login Access and Personas
+- **Requested by:** User ("mwntion in frontend that all login access arr for testing purpose").
+- **Skills used:** `project-memory-workflow`
+- **What changed:**
+  - `frontend/src/DemoToolbar.tsx`: Updated demo persona roles to explicitly state `"Testing persona"`, labeled acting role selector `<small>Acting role (Testing only)</small>`, added prominent notice banner inside persona dropdown (`All login access and personas are for testing purposes only.`), and replaced toolbar hint with explicit testing notice (`Notice: All login access is for testing purposes only`).
+  - `frontend/src/demo-toolbar.css`: Styled `.demo-role-notice` with clear indigo accent border and elevated `.demo-hint` to a high-contrast badge pill.
+  - `frontend/src/IntroPage.tsx`: Added global banner under header with `.intro-testing-notice` and `.intro-testing-pill` stating *"All login access, user personas, and authentication credentials across this application are for testing purposes only"*, updated role dropdown label to `Acting as (Testing)`, and marked each role option with `(Testing)`.
+  - `frontend/src/intro.css`: Added responsive styles for `.intro-testing-notice` and `.intro-testing-pill` conforming to the site's design tokens.
+  - `frontend/src/DetailPage.tsx`: Updated SSO badge to `Verified through Northbridge University SSO (Test Account)` and post-approval instructions to `Room entry details, equipment login (demo access), and emergency contacts`.
+  - `frontend/src/ReviewQueue.tsx`: Clarified applicant verification sources with `SSO directory (Test SSO)` and `Membership verified through institutional SSO (Test Sandbox) 4 minutes ago.`.
+- **Why:** Provide clear, unequivocal notices throughout the frontend interface that all login capabilities, user accounts, and credentials are exclusively for testing and demonstration purposes.
+- **Verification:** `cd frontend && pnpm.cmd exec tsc --noEmit` passed with 0 errors; `cd frontend && pnpm.cmd run build` passed in 337ms with 0 errors; `cd backend && npm.cmd test` passed 280/280 tests across 19 suites.
+- **Commit:** pending git commit
+- **Follow-ups:** System is fully verified.
+
 ### CHG-031 | 2026-10-30 | Replace Frontend with Faithful Port of Institutional Equipment Discovery UI
 - **Requested by:** User (replace frontend with Institutional_Equipment_Discovery_1.zip).
 - **Skills used:** `project-memory-workflow`
