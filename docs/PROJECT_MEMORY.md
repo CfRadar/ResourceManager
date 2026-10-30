@@ -95,7 +95,7 @@
   - `frontend/tsconfig.json`: Removed deprecated `"baseUrl": "."` option for TypeScript 5.7+ compatibility.
 - **Why:** Enable direct cross-service communication between the live deployed Vercel frontend, Render Node backend, and Render Python UviAge AI microservice without requiring manual `.env` file modifications in deployment dashboards.
 - **Verification:** Probed all 3 live endpoints (Node backend `/health` -> 200 OK, Vercel frontend -> 200 OK, Python UviAge `/ai/health` -> 200 OK); ran `npm test` in `backend/` -> 280/280 passing across 19 suites; ran `npm run build` in `frontend/` -> compiled cleanly in 1.12s.
-- **Commit:** Pending.
+- **Commit:** a68c095
 - **Follow-ups:** System is fully wired for production deployments.
 
 ### CHG-032 | 2026-10-30 | Display Testing Purpose Notice for All Login Access and Personas
